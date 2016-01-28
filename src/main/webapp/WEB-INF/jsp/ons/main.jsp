@@ -1405,12 +1405,13 @@ function showSMS() {
 	net_ajax(url, params, function (data) {
 		
 		if (data.retCode == const_ret_ok) {
+			
 			$pop = createPop($pop_sms);
 
-			$pop.find('#span_carno').text(car_no);
-			$pop.find('#msg_carid').val(car_id);
-			$pop.find('#msg_carno').val(car_no);
-			$pop.find('#msg_dsr_seq').val(d_seq);
+			//$pop.find('#span_carno').text(car_no);
+			//$pop.find('#msg_carid').val(car_id);
+			//$pop.find('#msg_carno').val(car_no);
+			//$pop.find('#msg_dsr_seq').val(d_seq);
 			
 			var items	= data.items;
 			var sHtml	= '';
