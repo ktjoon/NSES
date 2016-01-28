@@ -93,6 +93,31 @@ public class MsgInfoController {
 		ComUtils.responseJson(request, response, resVO);
 	}
 	
+	// add by ktjoon 2016-01
+	@RequestMapping("/ons/carmsg/smsList_ajax.do")
+	public void loadSmsListAjax(@ModelAttribute("msgVO") MsgInfoVO msgVO,  @RequestParam Map<String,Object> params, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		logger.info("/ons/carmsg/smsList_ajax.do");
+		//MsgInfoVO msgVO	= new MsgInfoVO();
+		System.out.println("11111111111111111111111");
+		
+		int nResCode	= BaseResVO.ERR_DATA_NOT_FOUND;
+		List<?> lstData		= msgInfoService.selectSMSList(msgVO);
+		System.out.println("22222222222222222222");
+		
+		ResultListVO	resVO;
+		
+		if (lstData != null)
+			nResCode = BaseResVO.RET_OK;
+		System.out.println("333333333333333333333");
+		resVO = ResultListVO.create(nResCode);
+		System.out.println("444444444444444444444444444");
+		resVO.setItems(lstData);
+		System.out.println("555555555555555555");
+		
+		ComUtils.responseJson(request, response, resVO);
+		System.out.println("666666666666666666666");
+	}
+	
 	@RequestMapping("/ons/carmsg/reg_action.do")
 	public void loadInfoRegAction(@ModelAttribute("msgVO") MsgInfoVO msgVO, @RequestParam Map<String,Object> params, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		logger.info("/ons/carmsg/reg_action.do");

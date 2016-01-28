@@ -61,6 +61,11 @@ public class MsgInfoServiceImpl extends EgovAbstractServiceImpl implements MsgIn
 	public List<?> selectListData(MsgInfoVO vo) throws Exception {
 		return msgInfoDAO.selectListData(vo);
 	}
+	
+	@Override
+	public List<?> selectSMSList(MsgInfoVO vo) throws Exception {
+		return msgInfoDAO.selectSMSList(vo);
+	}
 
 	@Override
 	public ResultVO insertData(MsgInfoVO vo) throws Exception {

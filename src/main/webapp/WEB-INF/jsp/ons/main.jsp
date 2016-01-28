@@ -1398,36 +1398,38 @@ $(document).ready(function() {
 //차량메시지 수신 팝업 호출
 function showSMS() {
 	
-	var url = '/ons/carmsg/list_ajax.do';
+	var url = '/ons/carmsg/smsList_ajax.do';
 	var params = {
 	};
-	
+	alert(1);
 	net_ajax(url, params, function (data) {
+		alert(3);
 		
 		if (data.retCode == const_ret_ok) {
 			$pop = createPop($pop_sms);
-
-			$pop.find('#span_carno').text(car_no);
-			$pop.find('#msg_carid').val(car_id);
-			$pop.find('#msg_carno').val(car_no);
-			$pop.find('#msg_dsr_seq').val(d_seq);
+			alert(4);
+			//$pop.find('#span_carno').text(car_no);
+			//$pop.find('#msg_carid').val(car_id);
+			//$pop.find('#msg_carno').val(car_no);
+			//$pop.find('#msg_dsr_seq').val(d_seq);
 			
 			var items	= data.items;
 			var sHtml	= '';
-			
+			alert(5);
 			if (items.length > 0) {
 				for (var i = 0; i < items.length; i ++) {
 					sHtml += items[i].msg_contents;
 					sHtml += '<br />' + items[i].reg_dt + '';
-					if (items[i].snd_stat == '0')
-						sHtml += ' (*)';
 					sHtml += '<br /><br />';
 				}
 			}
-			
+			alert(6);
 			$pop.find('.sms').html(sHtml);
+			alert(7);
 		}
 	}, onNetCallbackDefaultError);
+	
+	alert(2);
 	
 	//setTimeout('showSMS()', 5000);
 }

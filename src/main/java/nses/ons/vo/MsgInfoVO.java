@@ -45,6 +45,7 @@ public class MsgInfoVO {
 	private String	reg_dt;
 	private String	user_id;
 	private String	dsr_seq;
+	private String	img_url;
 	
 	
 	public int getMsg_seq() {
@@ -126,4 +127,16 @@ public class MsgInfoVO {
 	public void setDsr_seq(String dsr_seq) {
 		this.dsr_seq = dsr_seq;
 	}
+	public String getImg_url() {
+		return img_url;
+	}
+	public void setImg_url(String img_url) {
+		this.img_url = img_url;
+	}
+	
+	
+	
+	
+	
+	
 }
