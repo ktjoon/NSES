@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="accidentEmrs">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="accidentVO" type="nses.ons.vo.AccidentInfoVO"/>
+
+	<resultMap id="accidentemrsRES" class="nses.ons.vo.AccidentInfoVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="dsr_knd_cd" column="dsr_knd_cd"/>
+		<result property="dsr_knd_name" column="dsr_knd_name"/>
+		<result property="dsr_cls_cd" column="dsr_cls_cd"/>
+		<result property="dsr_cls_name" column="dsr_cls_name"/>
+		<result property="point_accr_cls" column="point_accr_cls"/>
+		<result property="point_accr_name" column="point_accr_name"/>
+		<result property="reg_user_id" column="reg_user_id"/>
+		<result property="reg_user_name" column="user_name"/>
+		<result property="reg_dtime" column="reg_dtime"/>
+		<result property="call_name" column="call_name"/>
+		<result property="call_tel" column="call_tel"/>
+		<result property="radio_name" column="radio_name"/>
+		<result property="gis_x" column="gis_x"/>
+		<result property="gis_y" column="gis_y"/>
+		<result property="dsr_addr" column="dsr_addr"/>
+		<result property="call_content" column="call_content"/>
+		<result property="proc_cd" column="proc_cd"/>
+		<result property="acc_stat" column="acc_stat"/>
+	</resultMap>
+	
+	<!-- 충동서소 VO -->
+	<resultMap id="accdWardInfoRES" class="nses.ons.vo.AccdWardInfoVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="ward_id" column="ward_id"/>
+		<result property="ward_name" column="ward_name"/>
+		<result property="gis_x" column="lat"/>
+		<result property="gis_y" column="lon"/>
+	</resultMap>
+	
+	<!-- 충동서소 VO -->
+	<resultMap id="accdWcarInfoRES" class="nses.ons.vo.AccdWcarInfoVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="car_id" column="car_id"/>
+		<result property="lat" column="lat"/>
+		<result property="lon" column="lon"/>
+		<result property="stat_datetime" column="stat_datetime"/>
+		<result property="input_datetime" column="input_datetime"/>
+		<result property="car_no" column="car_no"/>
+		<result property="car_type_cd" column="car_type_cd"/>
+		<result property="car_type_name" column="car_type_name"/>
+		<result property="car_stat_cd" column="car_stat_cd"/>
+		<result property="car_stat_name" column="car_stat_name"/>
+		<result property="car_gis_x" column="car_gis_x"/>
+		<result property="car_gis_y" column="car_gis_y"/>
+	</resultMap>
+	
+	<select id="accidentEmrs.selectListData"  resultMap="accidentemrsRES">
+			SELECT 
+				A.DSR_SEQ
+				,A.DSR_KND_CD 
+				,J.CD_NAME DSR_KND_NAME
+				,A.DSR_CLS_CD
+				,I.CD_NAME DSR_CLS_NAME
+				,A.POINT_ACCR_CLS
+				,CASE WHEN A.POINT_ACCR_CLS = '1' THEN	'정확지점' WHEN A.POINT_ACCR_CLS = '1' THEN '유사지점'  ELSE '읍면동지점' END as POINT_ACCR_NAME
+				,D.REG_USER_ID
+				, (SELECT MIN(USER_NAME) FROM SM_USER WHERE USER_ID = D.REG_USER_ID) AS USER_NAME
+				,D.REG_DTIME
+				,D.CALL_NAME
+				,D.CALL_TEL
+				, (SELECT STATION_NAME FROM CM_RADIOCHINFO WHERE STATION_ID = A.RADIO_CH) AS RADIO_NAME
+				,A.GIS_X
+				,A.GIS_Y
+				, (SELECT SIDO || ' ' || SIGUNGU || ' ' || DONG || ' ' || RI || ' ' || A.DSR_ETC_ADDR FROM SM_ZIP WHERE ZIP_SEQ = A.DSR_ZIP_SEQ) AS DSR_ADDR
+				,D.CALL_CONTENT
+				,A.PROC_CD
+				, '0' as ACC_STAT	
+			FROM CM_DSR A
+      			, (SELECT DSR_SEQ, MIN(REG_SEQ) REG_SEQ FROM CM_CALL WHERE DSR_SEQ IS NOT NULL GROUP BY DSR_SEQ) B
+      			, CM_CALL D
+				, SM_CD2 I
+				, SM_CD2 J
+			WHERE	
+				A.DSR_SEQ = B.DSR_SEQ
+				AND B.DSR_SEQ = D.DSR_SEQ(+)
+				AND B.REG_SEQ = D.REG_SEQ(+)
+				AND A.PROC_CD != '0140060'
+				AND A.DSR_CLS_CD = I.CD
+				AND A.DSR_KND_CD = J.CD
+				AND LENGTH(NVL(A.STAT_END_DTIME,'')) <![CDATA[ < ]]> 10
+				AND NVL(A.GIS_X, 0) > 100
+				AND D.REG_DTIME BETWEEN TO_CHAR(SYSDATE-7, 'YYYYMMDDHH24MISS') AND TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			ORDER BY REG_DTIME DESC
+	</select>
+	
+	<select id="accidentEmrs.selectWardList"  parameterClass="java.lang.String" resultClass="egovMap">
+		SELECT  A.DSR_SEQ, A.DSP_WARD_ID, A.CAR_ID
+		FROM 
+			CM_DSPLIST  A LEFT OUTER JOIN IS_WARD B
+			ON A.DSP_WARD_ID = B.WARD_ID
+		WHERE
+			DSR_SEQ		= #dsr_seq#
+	</select>
+	
+	<select id="accidentEmrs.getWardLocation" parameterClass="java.lang.String" resultMap="accdWardInfoRES">
+		SELECT WARD.DSR_SEQ	,WARD.WARD_ID ,WARD.WARD_NAME 
+	   		,NVL(GI_PARCEL_P.POINT_X,'0') AS LAT
+			,NVL(GI_PARCEL_P.POINT_Y,'0') AS LON
+		FROM(
+			SELECT  MAX(A.DSR_SEQ) DSR_SEQ ,MAX(A.DSP_WARD_ID) DSP_WARD_ID ,B.WARD_ID WARD_ID 
+					,MAX(B.HOUSE_NO) HOUSE_NO ,MAX(B.USE_YN) USE_YN 
+					,MAX(B.WARD_NAME) WARD_NAME ,MAX(B.SIDO_CD || B.GUGUN_CD || B.DONG_CD || B.RI_CD) as ADDR
+			FROM 
+					CM_DSPLIST  A LEFT OUTER JOIN IS_WARD B
+					ON A.DSP_WARD_ID = B.WARD_ID
+			WHERE
+					DSR_SEQ	= #dsr_seq#
+			GROUP BY B.WARD_ID
+			) WARD LEFT OUTER JOIN ERSS_GIS.GI_PARCEL_P GI_PARCEL_P 
+		ON GI_PARCEL_P.DONGB_CD = WARD.ADDR
+		AND (WARD.HOUSE_NO = GI_PARCEL_P.ADDRNO)
+		WHERE WARD.USE_YN = 'Y'
+		AND	NVL(GI_PARCEL_P.POINT_X,'0') != '0'
+		AND	NVL(GI_PARCEL_P.POINT_Y,'0') != '0'
+	</select>
+	
+	<select id="accidentEmrs.getVlTraceLocation" parameterClass="java.lang.String" resultMap="accdWcarInfoRES">
+		SELECT 		
+				A.DSR_SEQ 
+				,A.CAR_ID 
+				,A.LAT 
+				,A.LON 
+				,B.STAT_DATETIME 
+				,B.INPUT_DATETIME 
+				,C.CAR_NO 
+				,C.CAR_CD  AS CAR_TYPE_CD
+				,D.CD_NAME AS CAR_TYPE_NAME 
+				,C.CARSTAT_CD AS CAR_STAT_CD
+				,E.CD_NAME AS CAR_STAT_NAME
+				,B.CAR_GIS_X 
+				,B.CAR_GIS_Y
+		FROM
+			(SELECT WARD.DSR_SEQ	
+					,WARD.CAR_ID
+					,NVL(GI_PARCEL_P.POINT_X,'0') AS LAT
+					,NVL(GI_PARCEL_P.POINT_Y,'0') AS LON
+				FROM (
+					SELECT  A.DSR_SEQ , MAX(B.HOUSE_NO) as HOUSE_NO , MAX(B.USE_YN) as USE_YN
+							,A.CAR_ID ,MAX(B.SIDO_CD || B.GUGUN_CD || B.DONG_CD || B.RI_CD) as ADDR
+					FROM 
+							CM_DSPLIST  A LEFT OUTER JOIN IS_WARD B
+							ON A.DSP_WARD_ID = B.WARD_ID
+					WHERE
+							DSR_SEQ	= #dsr_seq#
+          			GROUP BY A.DSR_SEQ, A.CAR_ID
+					) WARD LEFT OUTER JOIN ERSS_GIS.GI_PARCEL_P GI_PARCEL_P 
+				ON GI_PARCEL_P.DONGB_CD = WARD.ADDR
+				AND (WARD.HOUSE_NO = GI_PARCEL_P.ADDRNO)
+				WHERE WARD.USE_YN = 'Y' 
+			) A LEFT OUTER JOIN
+			(SELECT A.CAR_ID ,A.STAT_DATETIME ,A.INPUT_DATETIME
+					,(SELECT CAR_GIS_X FROM VL_TRACE_INFO WHERE CAR_ID = A.CAR_ID AND INPUT_DATETIME = A.INPUT_DATETIME AND ROWNUM &lt;= 1) AS CAR_GIS_X
+					,(SELECT CAR_GIS_Y FROM VL_TRACE_INFO WHERE CAR_ID = A.CAR_ID AND INPUT_DATETIME = A.INPUT_DATETIME AND ROWNUM &lt;= 1) AS CAR_GIS_Y
+				FROM
+					(SELECT 
+						MAX(A.DEVICE_ID) AS DEVICE_ID 
+						,MAX(A.WARD_ID) AS WARD_ID
+						,MAX(A.DSR_SEQ) AS DSR_SEQ
+						,A.CAR_ID
+						,MIN(INPUT_DATETIME) AS STAT_DATETIME
+						,MAX(INPUT_DATETIME) AS INPUT_DATETIME
+					FROM VL_TRACE_INFO A
+					WHERE 
+						CAR_ID IN (SELECT CAR_ID FROM CM_DSPLIST WHERE DSR_SEQ	= #dsr_seq# GROUP BY DSR_SEQ, CAR_ID)
+					GROUP BY CAR_ID) A
+			) B
+      		ON A.CAR_ID = B.CAR_ID
+			,IS_WARDCAR C ,SM_CD2 D ,SM_CD2 E
+			WHERE A.CAR_ID = C.CAR_ID
+					AND C.CAR_CD=D.CD
+					AND C.CARSTAT_CD=E.CD
+					AND (B.CAR_GIS_X is not null or A.LAT != '0')
+	</select>
+	
+	
+	<select id="accidentEmrs.getObj" parameterClass="java.lang.String" resultClass="egovMap">
+		 SELECT  
+				OBJ.OBJ_ID
+				,CASE WHEN  BLDG_COUNT.COUNT >  1 THEN OBJ.CONST_NAME || ' ' || REPLACE(BLDG.BLDG_NAME,'동','') || '동' ELSE  OBJ.CONST_NAME END CONST_NAME
+				,OBJ_ZIP_ADDR.LAW_ADDR_NAME || ' ' || OBJ.HOUSE_NO  ADDRESS
+				,OBJ.SIDO_CD
+				,OBJ.GUGUN_CD
+				,OBJ.DONG_CD
+				,OBJ.RI_CD
+				,OBJ.HOUSE_NO
+				,OBJ.ETC_ADDR
+				,OBJ.ZIP_CODE
+				,OBJ.BLDG_NM
+				,ROW_NUMBER() OVER (ORDER BY OBJ.OBJ_ID ASC) ROWNUMBER
+			FROM IS_OBJ OBJ,IS_BLDG BLDG,IS_OBJDETAIL OBJDETAIL,IS_WARD WARD
+			,(
+			  SELECT OBJ_ID,COUNT(*) COUNT FROM IS_BLDG GROUP BY OBJ_ID
+			)BLDG_COUNT
+			,SM_LAW_ADDR OBJ_ZIP_ADDR
+			WHERE 1=1
+			  AND OBJ.OBJ_ID = BLDG.OBJ_ID(+)
+			  AND OBJ.OBJ_ID = OBJDETAIL.OBJ_ID(+)
+			  AND OBJ.OBJ_ID = BLDG_COUNT.OBJ_ID(+)
+			  AND OBJ.WARD_ID = WARD.WARD_ID(+)
+			  AND OBJ.SIDO_CD = OBJ_ZIP_ADDR.LAW_SIDO_CD(+)
+			  AND OBJ.GUGUN_CD = OBJ_ZIP_ADDR.LAW_GUGUN_CD(+)
+			  AND OBJ.DONG_CD = OBJ_ZIP_ADDR.LAW_DONG_CD(+)
+			  AND OBJ.RI_CD = OBJ_ZIP_ADDR.LAW_RI_CD(+)
+			  AND OBJ.USE_YN = 'Y'
+			  AND (OBJ.CONST_NAME LIKE '%'||#obj_name#||'%' OR OBJ.BLDG_NM LIKE '%'||#obj_name#||'%')
+			ORDER BY OBJ.CONST_NAME,BLDG.BLDG_SEQ
+	</select>
+		<!-- AND OBJ.GUGUN_CD = '185' -->
+</sqlMap>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="MsgInfo">
+
+	<typeAlias  alias="msgInfoVO" type="nses.ons.vo.MsgInfoVO"/>
+
+	<resultMap id="msgInfoRES" class="nses.ons.vo.MsgInfoVO">
+		<result property="msg_seq" column="msg_seq"/>
+		<result property="car_no" column="car_no"/>
+		<result property="msg_contents" column="msg_contents"/>
+		<result property="snd_dt" column="snd_dt"/>
+		<result property="snd_stat" column="snd_stat"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+
+	<select id="msgInfo.selectListData" parameterClass="msgInfoVO" resultMap="msgInfoRES">
+		SELECT 
+			a.MSG_SEQ, a.CAR_NO, a.MSG_TYPE, a.MSG_CONTENTS, a.MSG_EXTRA, a.CCTV_TYPE, a.CCTV_DBKEY
+			, a.SND_STAT, a.USER_ID
+			, DATE_FORMAT(a.REG_DT, '%Y-%m-%d %k:%i') AS REG_DT
+			, DATE_FORMAT(a.SND_DT, '%Y-%m-%d %k:%i') AS SND_DT
+			, b.ACC_STAT
+		FROM 
+			TB_MESSAGE_INFO a
+		JOIN 
+			TB_ACCIDENT_INFO b
+		ON(a.MSG_EXTRA = b.DSR_SEQ)
+		WHERE 
+			a.CAR_NO = #car_no#
+		AND 
+			a.MSG_EXTRA = #dsr_seq#
+		AND
+			a.MSG_TYPE	= '1'
+	</select>
+
+	<insert id="msgInfo.insertData">
+		INSERT INTO 
+			TB_MESSAGE_INFO
+			(
+				CAR_ID
+				, CAR_NO
+				, MSG_TYPE
+				, MSG_CONTENTS
+				, MSG_EXTRA
+				<isNotEmpty property="cctv_type">
+					, CCTV_TYPE
+				</isNotEmpty>
+				, CCTV_DBKEY
+				, USER_ID
+			)
+		VALUES
+			(
+				#car_id#
+				, #car_no#
+				, #msg_type#
+				, #msg_contents#
+				, #msg_extra#
+				<isNotEmpty property="cctv_type">
+					, #cctv_type#
+				</isNotEmpty>
+				, #cctv_dbkey#
+				, #user_id#
+			)
+
+	</insert>
+	
+	<!-- cctv 전송 -->
+	<insert id="msgInfo.insertCctvData">
+		INSERT INTO 
+			TB_MESSAGE_INFO
+			(
+				CAR_ID
+				, CAR_NO
+				, MSG_TYPE
+				, MSG_CONTENTS
+				, MSG_EXTRA
+				, CCTV_TYPE
+				, CCTV_DBKEY
+				, USER_ID
+			)
+		VALUES
+			(
+				#car_id#
+				, #car_no#
+				, #msg_type#
+				, #msg_contents#
+				, #msg_extra#
+				, #cctv_type#
+				, #cctv_dbkey#
+				, #user_id#
+			)
+
+	</insert>
+</sqlMap>

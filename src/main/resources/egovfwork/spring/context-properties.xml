@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+
+	<bean name="propertiesService" class="egovframework.rte.fdl.property.impl.EgovPropertyServiceImpl" destroy-method="destroy">
+		<property name="properties">
+	        <map>
+	        	<entry key="pageUnit" value="10"/>
+	        	<entry key="pageSize" value="10"/>
+	        	
+	        	<!-- CCTV캡쳐 서버주소 -->
+	        	<entry key="useCapServer" value="1"/>
+	        	<entry key="capServerAddr" value="101.19.100.48"/>
+	        	<!-- 차량인식 서버주소 -->
+	        	<entry key="recogServerAddr" value="101.19.100.48"/>
+	        	<!-- 단속저장 경로 -->
+	        	<!-- <entry key="recogSavePath" value="/home/webapp/files"/> -->
+	        	<entry key="recogSavePath" value="/"/>
+
+				<!-- schedule time -->
+				<entry key="scheduleTime" value="6"/>
+				
+	        	<!-- 영상저장 서버주소 -->
+	        	<entry key="fileServerAddr" value="210.103.55.49"/>
+				<entry key="recordServerAddr" value="http://101.19.100.48/awd/record"/>
+	        	<!-- 영상저장 콜백URL -->
+	        	<entry key="recordCallbackURL" value="http://101.19.100.49/ons/recog/recok.do"/>
+				
+				<!-- VLC 다운로드 URL -->
+	        	<entry key="vlcDownloadURL" value="http://101.19.100.48/install/vlc-2.1.5-win32.exe"/>
+
+	        	<entry key="rtsaSchTime" value="1"/>
+	        	<entry key="rtsaSchDir" value="/home/webapp/files/mnt/in"/>
+	        	<entry key="rtsaBackDir" value="/home/webapp/files/mnt/backup"/>
+
+	        	<!-- 휴빌론 경로검색서버주소 -->
+	        	<entry key="rbsServerAddr" value="221.148.209.91"/>
+	        </map>
+		</property>
+	</bean>
+	
+</beans>	

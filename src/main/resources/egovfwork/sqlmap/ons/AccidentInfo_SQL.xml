@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="AccidentInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="accidentVO" type="nses.ons.vo.AccidentInfoVO"/>
+	
+	<resultMap id="acctInfoRES" class="nses.ons.vo.AccidentInfoVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="dsr_knd_cd" column="dsr_knd_cd"/>
+		<result property="dsr_knd_name" column="dsr_knd_name"/>
+		<result property="dsr_cls_cd" column="dsr_cls_cd"/>
+		<result property="dsr_cls_name" column="dsr_cls_name"/>
+		<result property="point_accr_cls" column="point_accr_cls"/>
+		<result property="point_accr_name" column="point_accr_name"/>
+		<result property="reg_user_id" column="reg_user_id"/>
+		<result property="reg_user_name" column="reg_user_name"/>
+		<result property="reg_dtime" column="reg_dtime"/>
+		<result property="call_name" column="call_name"/>
+		<result property="call_tel" column="call_tel"/>
+		<result property="radio_name" column="radio_name"/>
+		<result property="gis_x" column="gis_x"/>
+		<result property="gis_y" column="gis_y"/>
+		<result property="dsr_addr" column="dsr_addr"/>
+		<result property="call_content" column="call_content"/>
+		<result property="proc_cd" column="proc_cd"/>
+		<result property="acc_stat" column="acc_stat"/>
+	</resultMap>
+
+	
+	<!--  -->
+	<resultMap id="fireCarInfoRES" class="nses.ons.vo.FireCarInfoVO">
+		<result property="car_id" column="car_id"/>
+		<result property="car_no" column="car_no"/>
+		<result property="cam_yn" column="cam_yn"/>
+		<result property="cam_hostport" column="cam_hostport"/>
+		<result property="cam_auth_data" column="cam_auth_data"/>
+		<result property="cam_url" column="cam_url"/>
+	</resultMap>
+	
+	<!--  -->
+	<resultMap id="cctvInfoRES" class="nses.ons.vo.CctvInfoVO">
+		<result property="cctv_guid" column="cctv_guid"/>
+		<result property="cctv_type" column="cctv_type"/>
+		<result property="cctv_name" column="cctv_name"/>
+		<result property="cctv_lng" column="cctv_lng"/>
+		<result property="cctv_lat" column="cctv_lat"/>
+		<result property="cam_auth_data" column="cam_auth_data"/>
+		<result property="cam_url" column="cam_url"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+	
+	<select id="accidentInfo.selectData" parameterClass="accidentVO" resultClass="int">
+			SELECT
+					COUNT(*)
+			FROM 
+				TB_ACCIDENT_INFO
+			WHERE
+				1=1
+				AND
+				DSR_SEQ	= #dsr_seq# 
+	</select>
+	
+	
+	<select id="accidentInfo.selectListData" resultMap="acctInfoRES">
+		<![CDATA[
+			SELECT
+				*
+			FROM 
+				TB_ACCIDENT_INFO
+			WHERE
+				ACC_STAT	= '0' 
+		]]>
+	</select>
+	
+	<insert id="accidentInfo.insertData" parameterClass="java.util.List">
+			INSERT INTO TB_ACCIDENT_INFO(
+					DSR_SEQ
+					,DSR_KND_CD
+					,DSR_KND_NAME
+					,DSR_CLS_CD
+					,DSR_CLS_NAME
+					,POINT_ACCR_CLS
+					,POINT_ACCR_NAME
+					,REG_USER_ID
+					,REG_USER_NAME
+					,REG_DTIME
+					,CALL_NAME
+					,CALL_TEL
+					,RADIO_NAME
+					,GIS_X
+					,GIS_Y
+					,DSR_ADDR
+					,CALL_CONTENT
+					,PROC_CD
+					,ACC_STAT
+				) 
+				<dynamic>
+				<iterate prepend="VALUES" conjunction="," >
+				 (
+					#[].dsr_seq#
+					,#[].dsr_knd_cd#
+					,#[].dsr_knd_name#
+					,#[].dsr_cls_cd#
+					,#[].dsr_cls_name#
+					,#[].point_accr_cls#
+					,#[].point_accr_name#
+					,#[].reg_user_id#
+					,#[].reg_user_name#
+					,#[].reg_dtime#
+					,#[].call_name#
+					,#[].call_tel#
+					,#[].radio_name#
+					,#[].gis_x#
+					,#[].gis_y#
+					,#[].dsr_addr#
+					,#[].call_content#
+					,#[].proc_cd#
+					,#[].acc_stat#
+				)
+				</iterate>
+			</dynamic>
+	</insert>
+	
+	<update id="accidentInfo.updateListData" parameterClass="java.util.List">
+			UPDATE TB_ACCIDENT_INFO
+			SET ACC_STAT = '1'
+			WHERE  DSR_SEQ IN
+				<iterate open="(" close=")" conjunction=",">
+					#[].dsr_seq#
+				</iterate>
+	</update>
+	<!-- 소방차량 CCTV 정보 반환 -->
+	<select id="accidentInfo.selectFireCarInfoList" parameterClass="java.util.HashMap" resultMap="fireCarInfoRES">
+			SELECT 
+				CAR_NO
+				, CAR_ID
+				, CAM_YN
+				, CAM_HOSTPORT
+				, CAM_AUTH_DATA
+				, CAM_URL
+			FROM
+				TB_FIRECAR_INFO
+			WHERE 
+				CAR_NO
+				<iterate prepend="IN" property="ary_car_no" open="(" close=")" conjunction=","> 
+	       			#ary_car_no[]#
+	     		</iterate> 
+	</select>
+	
+	<!-- 범위 내 CCTV 리스트 반환 -->
+	<select id="accidentInfo.selectRectCctvList" parameterClass="java.util.HashMap" resultMap="cctvInfoRES">
+		SELECT 
+			'1' AS CCTV_TYPE
+			, CCTV_GUID, CCTV_NAME
+			, CCTV_LAT, CCTV_LNG
+			, CAM_AUTH_DATA, CAM_URL
+			, REG_DT
+		FROM 
+			TB_CCTV_INFO
+		WHERE 
+				1 = 1 
+			AND 
+				(UTMK_Y BETWEEN #y1# AND #y2#)
+			AND 
+				(UTMK_X BETWEEN #x1# AND #x2#)
+		UNION
+		SELECT
+			'2' AS CCTV_TYPE
+			, CCTV_GUID, CCTV_NAME
+			, CCTV_LAT, CCTV_LNG
+			, CAM_AUTH_DATA, CAM_URL
+			, REG_DT
+		FROM 
+			TB_FIRE_CCTV
+		WHERE
+				1 = 1 
+			AND 
+				(UTMK_Y BETWEEN #y1# AND #y2#)
+			AND 
+				(UTMK_X BETWEEN #x1# AND #x2#)
+	</select>
+	
+	<insert id="accidentInfo.insertRouteData" parameterClass="java.util.HashMap">
+			INSERT INTO TB_ROUTE_INFO
+				(
+					DSR_SEQ
+					, CAR_ID
+					, ROUTE_NO
+					, SCH_TYPE
+					, SCH_DETAIL_DATA
+					, SCH_CCTV_DATA
+					, SCH_TRAFFIC_DATA
+				)
+				VALUES
+				(
+					#dsr_seq#
+					, #car_id#
+					, #route_no#
+					, #sch_type#
+					, #sch_detail_data#
+					, #sch_cctv_data#
+					, #sch_traffic_data#
+				)
+	</insert>
+	
+</sqlMap>

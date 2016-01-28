@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN" "http://www.ibatis.com/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<!-- ONS -->
+	<sqlMap resource="egovfwork/sqlmap/ons/UserInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/RoadInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/CctvInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/MsgInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/RecogImg_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/AccidentInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/Terminate_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/ons/RtsaOccurid_SQL.xml"/>
+	
+	<!-- CMS -->
+	<sqlMap resource="egovfwork/sqlmap/cms/UserInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/CctvInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/FirecctvInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/CarOwner_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/FirecarInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/RecogInfo_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/Saved_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/RecogSet_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/Stats_SQL.xml"/>
+	<sqlMap resource="egovfwork/sqlmap/cms/OwnerHist_SQL.xml"/>
+	
+	<!-- EMRS -->
+	<sqlMap resource="egovfwork/sqlmap/emrs/AccidentEmrs_SQL.xml"/>
+</sqlMapConfig>

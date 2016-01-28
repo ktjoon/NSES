@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="OnsCctvInfo">
+
+	<typeAlias  alias="cctvInfoVO" type="nses.ons.vo.CctvInfoVO"/>
+
+	<resultMap id="cctvInfoRES" class="nses.ons.vo.CctvInfoVO">
+		<result property="cctv_guid" column="cctv_guid"/>
+		<result property="cctv_type" column="cctv_type"/>
+		<result property="cctv_name" column="cctv_name"/>
+		<result property="cctv_lng" column="cctv_lng"/>
+		<result property="cctv_lat" column="cctv_lat"/>
+		<result property="utmk_x" column="utmk_x"/>
+		<result property="utmk_y" column="utmk_y"/>
+		<result property="cctv_hostport" column="cctv_hostport"/>
+		<result property="cctv_seqno" column="cctv_seqno"/>
+		<result property="cctv_kind" column="cctv_kind"/>
+		<result property="org_type" column="org_type"/>
+		<result property="tel_no" column="tel_no"/>
+		<result property="cam_auth_data" column="cam_auth_data"/>
+		<result property="cam_url" column="cam_url"/>
+		<result property="cctv_model" column="cctv_model"/>
+		<result property="com_protocol" column="com_protocol"/>
+		<result property="video_codec" column="video_codec"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+
+	
+	<select id="onsCctvInfo.selectListData" parameterClass="cctvInfoVO" resultMap="cctvInfoRES">
+		SELECT  
+			'1' AS CCTV_TYPE
+			, CCTV_GUID, CCTV_NAME, CCTV_LNG, CCTV_LAT, UTMK_X, UTMK_Y
+			, CCTV_HOSTPORT, CCTV_SEQNO, CCTV_KIND, ORG_TYPE, TEL_NO
+			, CAM_AUTH_DATA, CAM_URL, CCTV_MODEL, COM_PROTOCOL, VIDEO_CODEC, REG_DT
+		FROM
+			TB_CCTV_INFO
+		UNION
+		SELECT
+			'2' AS CCTV_TYPE
+			, CCTV_GUID, CCTV_NAME, CCTV_LNG, CCTV_LAT, UTMK_X, UTMK_Y
+			, CCTV_HOSTPORT, CCTV_SEQNO, CCTV_KIND, ORG_TYPE, TEL_NO
+			, CAM_AUTH_DATA, CAM_URL, CCTV_MODEL, COM_PROTOCOL, VIDEO_CODEC, REG_DT
+		FROM
+			TB_FIRE_CCTV;
+	</select>
+</sqlMap>

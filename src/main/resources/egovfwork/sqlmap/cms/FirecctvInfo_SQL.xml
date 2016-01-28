@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="firecctvInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="cctvVO" type="nses.cms.vo.CctvInfoVO"/>
+
+	<resultMap id="cctvInfoRES" class="nses.cms.vo.CctvInfoVO">
+		<result property="cctv_guid" column="cctv_guid"/>
+		<result property="cctv_name" column="cctv_name"/>
+		<result property="cctv_lng" column="cctv_lng"/>
+		<result property="cctv_lat" column="cctv_lat"/>
+		<result property="utmk_x" column="utmk_x"/>
+		<result property="utmk_y" column="utmk_y"/>
+		<result property="cctv_hostport" column="cctv_hostport"/>
+		<result property="cctv_seqno" column="cctv_seqno"/>
+		<result property="cctv_kind" column="cctv_kind"/>
+		<result property="org_type" column="org_type"/>
+		<result property="tel_no" column="tel_no"/>
+		<result property="cam_url" column="cam_url"/>
+		<result property="cam_auth_data" column="cam_auth_data"/>
+		<result property="cctv_model" column="cctv_model"/>
+		<result property="com_protocol" column="com_protocol"/>
+		<result property="video_codec" column="video_codec"/>
+		<result property="reg_dt" column="reg_dt"/>
+		<result property="mod_dt" column="mod_dt"/>
+		<result property="user_id" column="user_id"/>
+	</resultMap>
+	
+	<select id="firecctvInfo.selectData" parameterClass="cctvVO" resultMap="cctvInfoRES">
+		SELECT 
+				* 
+		FROM 
+			TB_FIRE_CCTV
+		WHERE
+			CCTV_GUID		= #cctv_guid#
+	</select>
+	
+	<select id="firecctvInfo.selectCctvName" parameterClass="String" resultClass="int">
+		SELECT 
+			COUNT(*) as cnt
+		FROM 
+			TB_FIRE_CCTV
+		WHERE 
+			CCTV_NAME	= #cctv_name# 
+	</select>
+	
+	<select id="firecctvInfo.selectListData" parameterClass="pageVO" resultMap="cctvInfoRES">
+		SELECT 
+				CCTV_GUID ,CCTV_NAME ,CCTV_LNG ,CCTV_LAT 
+				,CCTV_HOSTPORT ,CCTV_KIND ,ORG_TYPE 
+				,TEL_NO ,CCTV_MODEL ,COM_PROTOCOL ,VIDEO_CODEC
+				,USER_ID ,UTMK_X ,UTMK_Y ,CCTV_SEQNO
+				,CAM_AUTH_DATA ,CAM_URL
+				,DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+				,DATE_FORMAT(MOD_DT, '%Y-%m-%d %H:%i:%s') AS MOD_DT
+		FROM TB_FIRE_CCTV
+		WHERE
+			1 = 1
+		<isNotEmpty property="searchKeyword">
+			AND CCTV_NAME LIKE CONCAT('%', #searchKeyword#, '%')
+		</isNotEmpty>
+		ORDER BY MOD_DT DESC
+		LIMIT #recordCountPerPage# OFFSET #firstIndex#	
+
+	</select>
+
+	<select id="firecctvInfo.selectListCount" parameterClass="pageVO" resultClass="int">
+		SELECT COUNT(*) totcnt
+		FROM TB_FIRE_CCTV
+		WHERE 1=1
+		<isNotEmpty property="searchKeyword">
+			AND CCTV_NAME LIKE CONCAT('%', #searchKeyword#, '%')
+		</isNotEmpty>
+	</select>
+
+	<insert id="firecctvInfo.insertData">
+		<![CDATA[
+			INSERT INTO 
+				TB_FIRE_CCTV 
+				(
+					CCTV_GUID
+					, CCTV_NAME
+					, CCTV_LNG
+					, CCTV_LAT
+					, UTMK_X
+					, UTMK_Y
+					, CCTV_HOSTPORT
+					, CCTV_SEQNO
+					, CCTV_KIND
+					, ORG_TYPE
+					, TEL_NO
+					, CAM_AUTH_DATA
+					, CAM_URL
+					, CCTV_MODEL
+					, COM_PROTOCOL
+					, VIDEO_CODEC
+					, REG_DT
+					, MOD_DT
+					, USER_ID
+				)
+			VALUES
+				(
+					#cctv_guid#
+					, #cctv_name#
+					, #cctv_lng#
+					, #cctv_lat#
+					, #utmk_x#
+					, #utmk_y#
+					, #cctv_hostport#
+					, #cctv_seqno#
+					, #cctv_kind#
+					, #org_type#
+					, #tel_no#
+					, #cam_auth_data#
+					, #cam_url#
+					, #cctv_model#
+					, #com_protocol#
+					, #video_codec#
+					, sysdate()
+					, sysdate()
+					, #user_id#
+				)
+		]]>
+	</insert>
+	
+	<update id="firecctvInfo.updateData" parameterClass="cctvVO">
+		UPDATE TB_FIRE_CCTV
+		SET 
+			CCTV_NAME		= #cctv_name#
+			, CCTV_LNG		= #cctv_lng#
+			, CCTV_LAT		= #cctv_lat#
+			, UTMK_X		= #utmk_x#
+			, UTMK_Y		= #utmk_y#
+			, CCTV_HOSTPORT	= #cctv_hostport#
+			, CCTV_SEQNO	= #cctv_seqno#
+			, CCTV_KIND		= #cctv_kind#
+			, CCTV_MODEL	= #cctv_model#
+			, TEL_NO		= #tel_no#
+			, CAM_AUTH_DATA = #cam_auth_data#
+			, CAM_URL		= #cam_url#
+			, MOD_DT		= now()
+		WHERE 
+			CCTV_GUID		= #cctv_guid#
+	</update>
+	
+	<delete id="firecctvInfo.deleteData" parameterClass="cctvVO">
+		DELETE FROM TB_FIRE_CCTV
+		WHERE
+			CCTV_GUID		= #cctv_guid#
+	</delete>	
+	
+	<insert id="firecctvInfo.insertExcelData" parameterClass="java.util.List">
+			INSERT INTO TB_FIRE_CCTV(
+					CCTV_GUID
+					, CCTV_NAME
+					, CCTV_LNG
+					, CCTV_LAT
+					, UTMK_X
+					, UTMK_Y
+					, CCTV_HOSTPORT
+					, CCTV_SEQNO
+					, CCTV_KIND
+					, ORG_TYPE
+					, TEL_NO
+					, CCTV_MODEL
+					, COM_PROTOCOL
+					, VIDEO_CODEC
+					, REG_DT
+					, MOD_DT
+					, USER_ID
+				) 
+				<dynamic>
+				<iterate prepend="VALUES" conjunction="," >
+				 (
+					#[].cctv_guid#
+					,#[].cctv_name#
+					,#[].cctv_lng#
+					,#[].cctv_lat#
+					,#[].utmk_x#
+					,#[].utmk_y#
+					,#[].cctv_hostport#
+					,#[].cctv_seqno#
+					,#[].cctv_kind#
+					,#[].org_type#
+					,#[].tel_no#
+					,#[].cctv_model#
+					,#[].com_protocol#
+					,#[].video_codec#
+					,now()
+					,now()
+					,#[].user_id#
+				)
+				</iterate>
+			</dynamic>
+	</insert>
+</sqlMap>

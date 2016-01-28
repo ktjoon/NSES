@@ -1,0 +1,35 @@
+body {
+    width: 100%;
+    background: url("../images/login/bg_login.jpg");
+    text-align: center;
+}
+
+.pad {
+    width: 100%;
+}
+.back {
+    margin: 0 auto;
+    width:1089px;
+    height:269px;
+    background: url("../images/login/img_login.png") no-repeat;
+}
+
+.logo {
+    margin: 0 0 0 695px;
+}
+
+form {
+    margin: 0 0 0 750px;
+}
+
+input.text{
+    width: 320px;
+    height: 50px;
+    margin: 0 0 10px 0;
+    font-size: 20px;
+    padding: 0 0 0 10px;
+}
+
+input.img {
+    width: 325px;
+}

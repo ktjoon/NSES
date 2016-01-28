@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="RoadInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="roadInfoVO" type="nses.ons.vo.RoadInfoVO"/>
+
+	<resultMap id="roadInfoRES" class="nses.ons.vo.RoadInfoVO">
+		<result property="road_seq" column="road_seq"/>
+		<result property="road_title" column="road_title"/>
+		<result property="poi_x" column="poi_x"/>
+		<result property="poi_y" column="poi_y"/>
+		<result property="degree_type" column="degree_type"/>
+		<result property="road_type" column="road_type"/>
+		<result property="road_start_dt" column="road_start_dt"/>
+		<result property="road_end_dt" column="road_end_dt"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+
+
+	<select id="roadInfo.selectListData" parameterClass="roadInfoVO" resultMap="roadInfoRES">
+		SELECT *
+		FROM
+			TB_ROAD_INFO
+		WHERE
+			USE_STAT = '1'
+	
+	</select>
+
+	<insert id="roadInfo.insertData">
+		INSERT INTO 
+			TB_ROAD_INFO
+			(
+				ROAD_SEQ
+				, ROAD_TITLE
+				, POI_X
+				, POI_Y
+				, DEGREE_TYPE
+				, ROAD_TYPE
+				, ROAD_START_DT
+				, ROAD_END_DT
+				, USER_ID
+			)
+		VALUES
+			(
+				#road_seq#
+				, #road_title#
+				, #poi_x#
+				, #poi_y#
+				, #degree_type#
+				, #road_type#
+				, #road_start_dt#
+				, #road_end_dt#
+				, #user_id#
+			)
+	</insert>
+	
+	<!-- 회피지점 삭제 : 상태 업데이트로 삭제 처리 -->
+	<update id="roadInfo.updateData" parameterClass="roadInfoVO">
+		UPDATE TB_ROAD_INFO
+		SET 
+			DEL_DT			= sysdate()
+			, USE_STAT		= '0'
+		WHERE 
+			ROAD_SEQ		= #road_seq#
+	</update>
+	
+	<!-- 회피지점 초기화 : 상태 업데이트로 초기화 처리 -->
+	<update id="roadInfo.clearData" parameterClass="roadInfoVO">
+		UPDATE TB_ROAD_INFO
+		SET 
+			DEL_DT			= sysdate()
+			, USE_STAT		= '0'
+		WHERE 
+			USE_STAT		= '1'
+	</update>
+</sqlMap>

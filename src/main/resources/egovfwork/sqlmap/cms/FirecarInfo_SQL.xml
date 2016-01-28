@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="firecarInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="firecarVO" type="nses.cms.vo.FirecarInfoVO"/>
+
+	<resultMap id="firecarInfoRES" class="nses.cms.vo.FirecarInfoVO">
+		<result property="car_id" column="car_id"/>
+		<result property="car_no" column="car_no"/>
+		<result property="car_type" column="car_type"/>
+		<result property="cam_yn" column="cam_yn"/>
+		<result property="cam_hostport" column="cam_hostport"/>
+		<result property="cam_auth_data" column="cam_auth_data"/>
+		<result property="cam_url" column="cam_url"/>
+		<result property="cctv_seqno" column="cctv_seqno"/>
+		<result property="model_name" column="model_name"/>
+		<result property="model_number" column="model_number"/>
+		<result property="serial_number" column="serial_number"/>
+		<result property="munufact_dt" column="munufact_dt"/>
+		<result property="reg_dt" column="reg_dt"/>
+		<result property="mod_dt" column="mod_dt"/>
+		<result property="use_stat" column="use_stat"/>
+		<result property="user_id" column="user_id"/>
+	</resultMap>
+	
+	<select id="firecarInfo.selectData" parameterClass="firecarVO" resultMap="firecarInfoRES">
+		SELECT CAR_ID ,CAR_NO ,CAR_TYPE  ,CAM_YN
+				,CAM_HOSTPORT ,CAM_AUTH_DATA ,CAM_URL
+				,CCTV_SEQNO ,MODEL_NAME ,MODEL_NUMBER 
+				,SERIAL_NUMBER ,USE_STAT ,USER_ID
+				,DATE_FORMAT(MUNUFACT_DT, '%Y-%m-%d') AS MUNUFACT_DT
+				,DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+				,DATE_FORMAT(MOD_DT, '%Y-%m-%d %H:%i:%s') AS MOD_DT 
+		FROM 
+			TB_FIRECAR_INFO
+		WHERE
+			CAR_ID		= #car_id#
+	</select>
+	
+	<select id="firecarInfo.selectListData" parameterClass="pageVO" resultMap="firecarInfoRES">
+		SELECT 
+				CAR_ID ,CAR_NO ,CAR_TYPE  ,CAM_YN
+				,CAM_HOSTPORT ,CAM_AUTH_DATA ,CAM_URL
+				,CCTV_SEQNO ,MODEL_NAME ,MODEL_NUMBER 
+				,SERIAL_NUMBER ,MUNUFACT_DT ,USE_STAT ,USER_ID
+				,DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+				,DATE_FORMAT(MOD_DT, '%Y-%m-%d %H:%i:%s') AS MOD_DT
+			FROM TB_FIRECAR_INFO
+			WHERE
+				1 = 1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+			ORDER BY MOD_DT DESC
+			LIMIT #recordCountPerPage# OFFSET #firstIndex#	
+
+	</select>
+
+	<select id="firecarInfo.selectListCount" parameterClass="pageVO" resultClass="int">
+		SELECT COUNT(*) totcnt
+		FROM TB_FIRECAR_INFO
+		WHERE 1=1
+		<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+
+	</select>
+
+	<insert id="firecarInfo.insertData">
+			INSERT INTO 
+				TB_FIRECAR_INFO 
+				(
+					CAR_ID
+					, CAR_NO
+					, CAR_TYPE
+					, CAM_YN
+					, CAM_HOSTPORT
+					, CAM_AUTH_DATA
+					, CAM_URL
+					, CCTV_SEQNO
+					, MODEL_NAME
+					, MODEL_NUMBER
+					, SERIAL_NUMBER
+					<isNotEmpty property="munufact_dt">
+						, MUNUFACT_DT
+					</isNotEmpty>
+					, REG_DT
+					, MOD_DT
+					, USE_STAT
+					, USER_ID
+				)
+			VALUES
+				(
+					#car_id#
+					, #car_no#
+					, #car_type#
+					, #cam_yn#
+					, #cam_hostport#
+					, #cam_auth_data#
+					, #cam_url#
+					, #cctv_seqno#
+					, #model_name#
+					, #model_number#
+					, #serial_number#
+					<isNotEmpty property="munufact_dt">
+						, #munufact_dt#
+					</isNotEmpty>
+					, sysdate()
+					, sysdate()
+					, #use_stat#
+					, #user_id#
+				)
+	</insert>
+	
+	<update id="firecarInfo.updateData" parameterClass="firecarVO">
+		UPDATE TB_FIRECAR_INFO
+		SET 
+			CAR_NO				= #car_no#
+			, CAR_TYPE			= #car_type#
+			, CAM_YN			= #cam_yn#
+			, CAM_HOSTPORT		= #cam_hostport#
+			, CAM_AUTH_DATA		= #cam_auth_data#
+			, CAM_URL			= #cam_url#
+			, CCTV_SEQNO		= #cctv_seqno#
+			, MODEL_NAME		= #model_name#
+			, SERIAL_NUMBER		= #serial_number#
+			, MODEL_NUMBER		= #model_number#
+			<isNotEmpty property="munufact_dt" prepend=",">
+				MUNUFACT_DT		= #munufact_dt#
+			</isNotEmpty>
+			, MOD_DT			= now()
+			, USE_STAT			= #use_stat#
+			, USER_ID			= #user_id#
+		WHERE 
+			CAR_ID				= #car_id#
+	
+	</update>
+	
+	<delete id="firecarInfo.deleteData" parameterClass="firecarVO">
+		DELETE FROM TB_FIRECAR_INFO
+		WHERE
+			CAR_ID		= #car_id#
+	</delete>
+	
+	<select id="firecarInfo.getWarCar" parameterClass="String" resultClass="egovMap">
+		SELECT A.CAR_ID 
+				,(SELECT CD_NAME FROM SM_CD2 WHERE CD = A.CAR_CD) CAR_TYPE
+		FROM IS_WARDCAR A
+		WHERE 1=1 
+			AND CAR_NO=#car_no#
+			AND USE_YN='Y'
+	</select>
+	
+</sqlMap>

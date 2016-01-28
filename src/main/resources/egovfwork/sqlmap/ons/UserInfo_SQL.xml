@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="UserInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="loginVO" type="nses.ons.vo.LoginVO"/>
+	<typeAlias  alias="userInfoVO" type="nses.ons.vo.UserInfoVO"/>
+
+	<resultMap id="userInfoRES" class="nses.ons.vo.UserInfoVO">
+		<result property="user_id" column="user_id"/>
+		<result property="user_pwd" column="user_pwd"/>
+		<result property="user_name" column="user_name"/>
+		<result property="user_email" column="user_email"/>
+		<result property="user_telno" column="user_telno"/>
+	</resultMap>
+	
+	<resultMap id="userConfigRES" class="nses.ons.vo.UserConfigVO">
+		<result property="user_id" column="user_id"/>
+		<result property="sch_type" column="sch_type"/>
+		<result property="cctv_mat" column="cctv_mat"/>
+	</resultMap>
+
+	<select id="userInfo.selectLoginData" resultMap="userInfoRES">
+		<![CDATA[
+			SELECT
+				user_id, user_pwd, user_name, user_email, user_telno
+			FROM
+				TB_USER_INFO
+			WHERE 
+				USER_ID = #user_id#
+		]]>
+	</select>
+	
+	<select id="userInfo.selectConfigData" resultMap="userConfigRES">
+		<![CDATA[
+			SELECT
+				USER_ID, SCH_TYPE, CCTV_MAT
+			FROM 
+				TB_USER_CONFIG 
+			WHERE 
+				USER_ID = #user_id#
+		]]>
+	</select>
+	
+	<select id="userInfo.selectRecSaveData" resultClass="int">
+		<![CDATA[
+			SELECT
+				MAX(REC_SAVE_SEC)
+			FROM 
+				TB_ENFORCE_CONFIG 
+		]]>
+	</select>
+	
+	<insert id="userInfo.insertConfigData">
+		INSERT INTO 
+			TB_USER_CONFIG
+			(
+				USER_ID
+				, LOGIN_DT
+			)
+		VALUES
+			(
+				#user_id#
+				, sysdate()
+			)
+	</insert>
+	
+	<update id="userInfo.updateLoginData">
+		UPDATE 
+			TB_USER_CONFIG
+		SET
+			LOGIN_DT	= sysdate()
+		WHERE
+			USER_ID = #user_id#
+	</update>
+	
+	<update id="userInfo.updateConfigData">
+		UPDATE 
+			TB_USER_CONFIG
+		SET
+			LOGIN_DT = LOGIN_DT
+			<isNotEmpty property="sch_type" prepend=",">
+				SCH_TYPE	= #sch_type#
+			</isNotEmpty>
+			<isNotEmpty property="cctv_mat" prepend=",">
+				CCTV_MAT	= #cctv_mat#
+			</isNotEmpty>
+		WHERE
+			USER_ID = #user_id#
+	</update>
+	
+	
+</sqlMap>

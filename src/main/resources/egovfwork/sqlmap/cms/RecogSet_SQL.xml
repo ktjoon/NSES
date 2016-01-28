@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="RecogSet">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="recogsetVO" type="nses.cms.vo.RecogSetVO"/>
+
+	<resultMap id="recogSetRES" class="nses.cms.vo.RecogSetVO">
+		<result property="enforce_time" column="enforce_time"/>
+		<result property="enforce_start_time" column="enforce_start_time"/>
+		<result property="enforce_end_time" column="enforce_end_time"/>
+		<result property="msg_contents" column="msg_contents"/>
+		<result property="msg_auto_send" column="msg_auto_send"/>
+		<result property="org_user_name" column="org_user_name"/>
+		<result property="org_user_tel" column="org_user_tel"/>
+		<result property="sender_tel" column="sender_tel"/>
+		<result property="mod_dt" column="mod_dt"/>
+		<result property="user_id" column="user_id"/>
+		<result property="rec_save_sec" column="rec_save_sec"/>
+	</resultMap>
+
+	<select id="recogset.selectData" parameterClass="recogsetVO" resultMap="recogSetRES">
+		SELECT * 
+		FROM 
+			TB_ENFORCE_CONFIG
+	</select>
+
+	<update id="recogset.updateData" parameterClass="recogsetVO">
+		UPDATE TB_ENFORCE_CONFIG
+		SET 
+			ENFORCE_TIME				= #enforce_time#
+			, ENFORCE_START_TIME		= #enforce_start_time#
+			, ENFORCE_END_TIME			= #enforce_end_time#
+			, MSG_CONTENTS				= #msg_contents#
+			, MSG_AUTO_SEND				= #msg_auto_send#
+			, ORG_USER_NAME				= #org_user_name#
+			, ORG_USER_TEL				= #org_user_tel#
+			, REC_SAVE_SEC				= #rec_save_sec#
+			, SENDER_TEL				= #sender_tel#
+			, MOD_DT					= now()
+			, USER_ID					= #user_id#
+			
+	</update>
+	
+</sqlMap>

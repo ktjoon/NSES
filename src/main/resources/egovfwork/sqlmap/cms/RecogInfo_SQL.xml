@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="recogInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="recogVO" type="nses.cms.vo.RecogVO"/>
+	<typeAlias  alias="recogDetailVO" type="nses.cms.vo.RecogDetailVO"/>
+	<typeAlias  alias="msgDataVO" type="nses.cms.vo.MsgDataVO"/>
+	
+	<resultMap id="recogInfoRES" class="nses.cms.vo.RecogVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="enforce_stat" column="enforce_stat"/>
+		<result property="enforce_dt" column="enforce_dt"/>
+		<result property="user_id" column="user_id"/>
+		<result property="reg_dt" column="reg_dt"/>	
+	</resultMap>
+	
+	<resultMap id="recogImgDetailRES" class="nses.cms.vo.RecogDetailVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="recog_time" column="recog_time"/>
+		<result property="recog_type" column="recog_type"/>
+		<result property="recog_car_no" column="recog_car_no"/>
+		<result property="cctv_key" column="cctv_key"/>
+		<result property="cctv_name" column="cctv_name"/>
+		<result property="poi_x" column="poi_x"/>
+		<result property="poi_y" column="poi_y"/>
+		<result property="poi_addr" column="poi_addr"/>
+		<result property="sms_stat" column="sms_stat"/>
+		<result property="sms_dt" column="sms_dt"/>
+		<result property="img_data1" column="img_data1"/>
+		<result property="img_data2" column="img_data2"/>
+		<result property="img_data3" column="img_data3"/>
+		<result property="recog_img_rect" column="recog_img_rect"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+	
+	<resultMap id="recogListlRES" class="nses.cms.vo.RecogListVO">
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="recog_time" column="recog_time"/>
+		<result property="poi_addr" column="poi_addr"/>
+		<result property="own_name" column="own_name"/>
+		<result property="tel_no" column="tel_no"/>
+		<result property="cctv_name" column="cctv_name"/>
+		<result property="dsr_seq" column="dsr_seq"/>
+	</resultMap>
+	
+	<!-- 메세지 전송결과 리턴 -->
+	<resultMap id="senderMsgRES" class="nses.cms.vo.MsgDataVO">
+		<result property="msg_seq" column="msg_seq"/>
+		<result property="cur_state" column="cur_state"/>
+		<result property="req_date" column="req_date"/>
+		<result property="call_to" column="call_to"/>
+		<result property="call_from" column="call_from"/>
+		<result property="sms_txt" column="sms_txt"/>
+		<result property="msg_type" column="msg_type"/>
+	</resultMap>
+
+	<select id="recogInfo.selectData" parameterClass="recogDetailVO" resultClass="egovMap">
+		SELECT a.*
+			,DATE_FORMAT(b.RECOG_TIME, '%Y-%m-%d %H:%i:%s') AS RECOG_CONVERT_TIME
+			, b.RECOG_TIME
+			, b.RECOG_TYPE, b.RECOG_CAR_NO, b.CCTV_KEY, b.CCTV_NAME
+			, b.POI_X, b.POI_Y, b.POI_ADDR, b.SMS_STAT, b.SMS_DT
+			, b.IMG_DATA1, b.IMG_DATA2, b.IMG_DATA3
+			, b.RECOG_IMG_RECT
+		FROM 
+			TB_RECOG_IMG_DATA a
+		JOIN 
+			TB_RECOG_IMG_DETAIL b
+		ON(a.DSR_SEQ = b.DSR_SEQ AND a.OWN_CAR_NO = b.OWN_CAR_NO)
+		WHERE 
+			a.OWN_CAR_NO	= #own_car_no#
+		AND
+			a.DSR_SEQ		= #dsr_seq#
+		ORDER BY RECOG_TIME DESC
+	</select>
+	
+	<select id="recogInfo.selectListData" parameterClass="pageVO" resultMap="recogListlRES">
+			SELECT MAX(m.DSR_SEQ) as DSR_SEQ , m.OWN_CAR_NO, 
+				CASE WHEN m.ENFORCE_STAT = '1' THEN MIN(CAST(m.ENFORCE_DT as DATETIME)) ELSE '' END AS RECOG_TIME,
+	            d.POI_ADDR,
+	            o.OWN_NAME,
+	            o.TEL_NO,
+			(SELECT CCTV_NAME FROM TB_RECOG_IMG_DETAIL s WHERE s.DSR_SEQ = d.DSR_SEQ AND s.OWN_CAR_NO = d.OWN_CAR_NO AND s.RECOG_TIME = MIN(d.RECOG_TIME)) as CCTV_NAME
+			FROM 
+				TB_RECOG_IMG_DATA m LEFT JOIN TB_RECOG_IMG_DETAIL d
+				ON m.DSR_SEQ = d.DSR_SEQ 
+	            AND m.OWN_CAR_NO = d.OWN_CAR_NO
+	            LEFT JOIN TB_CAR_OWNER o
+	            ON m.OWN_CAR_NO = o.OWN_CAR_NO
+	        WHERE
+				1 = 1
+					<isNotEmpty property="searchCondition">
+						<isEqual prepend="AND" property="searchCondition" compareValue="own_car_no">
+							m.OWN_CAR_NO LIKE CONCAT('%', #searchKeyword#, '%')
+						</isEqual>
+						<isEqual prepend="AND" property="searchCondition" compareValue="own_name">
+							o.OWN_NAME LIKE CONCAT('%', #searchKeyword#, '%')
+						</isEqual>
+						<isEqual prepend="AND" property="searchCondition" compareValue="cctv_name">
+							d.CCTV_NAME LIKE CONCAT('%', #searchKeyword#, '%')
+						</isEqual>
+					</isNotEmpty>
+			GROUP BY m.DSR_SEQ, m.OWN_CAR_NO
+			ORDER BY m.REG_DT DESC
+			LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>
+
+	<select id="recogInfo.selectListCount" parameterClass="pageVO" resultClass="int">
+			SELECT COUNT(*) totcnt
+			FROM(
+				SELECT m.OWN_CAR_NO
+				FROM 
+					TB_RECOG_IMG_DATA m LEFT JOIN TB_RECOG_IMG_DETAIL d
+					ON m.DSR_SEQ = d.DSR_SEQ 
+		            AND m.OWN_CAR_NO = d.OWN_CAR_NO
+		            LEFT JOIN TB_CAR_OWNER o
+		            ON m.OWN_CAR_NO = o.OWN_CAR_NO
+		        WHERE
+					1 = 1
+						<isNotEmpty property="searchCondition">
+							<isEqual prepend="AND" property="searchCondition" compareValue="own_car_no">
+								m.OWN_CAR_NO LIKE CONCAT('%', #searchKeyword#, '%')
+							</isEqual>
+							<isEqual prepend="AND" property="searchCondition" compareValue="own_name">
+								o.OWN_NAME LIKE CONCAT('%', #searchKeyword#, '%')
+							</isEqual>
+							<isEqual prepend="AND" property="searchCondition" compareValue="cctv_name">
+								d.CCTV_NAME LIKE CONCAT('%', #searchKeyword#, '%')
+							</isEqual>
+						</isNotEmpty>
+				GROUP BY m.DSR_SEQ, m.OWN_CAR_NO
+				) A
+	</select>
+	
+	<select id="recogInfo.selectSenderMsgData" parameterClass="pageVO" resultMap="senderMsgRES">
+		SELECT *
+		FROM
+			MSG_DATA
+		WHERE
+			1 = 1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+	
+	<select id="recogInfo.selectSenderMsgCount" parameterClass="pageVO" resultClass="int">
+		SELECT COUNT(*)
+		FROM
+			MSG_DATA
+		WHERE
+			1 = 1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+	
+</sqlMap>

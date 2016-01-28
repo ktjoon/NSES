@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="saved">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="savedVO" type="nses.cms.vo.SavedVO"/>
+
+	<resultMap id="savedRES" class="nses.cms.vo.SavedVO">
+		<result property="file_name" column="file_name"/>
+		<result property="car_no" column="car_no"/>
+		<result property="file_server" column="file_server"/>
+		<result property="file_path" column="file_path"/>
+		<result property="file_size" column="file_size"/>
+		<result property="file_type" column="file_type"/>
+		<result property="cam_type" column="cam_type"/>
+		<result property="poi_x" column="poi_x"/>
+		<result property="poi_y" column="poi_y"/>
+		<result property="save_stat" column="save_stat"/>
+		<result property="reg_dt" column="reg_dt"/>
+		<result property="rec_stat" column="rec_stat"/>
+	</resultMap>
+
+	<select id="saved.selectData" parameterClass="savedVO" resultMap="savedRES">
+		SELECT * 
+		FROM 
+			TB_CCTV_SAVED_INFO
+		WHERE
+			FILE_NAME	= #file_name#
+	</select>
+	
+	<select id="saved.selectListData" parameterClass="pageVO" resultMap="savedRES">
+
+			SELECT 
+				FILE_NAME, CAR_NO
+				, FILE_SERVER
+				, FILE_PATH
+				, ROUND(CASE WHEN FILE_SIZE > 0 THEN FILE_SIZE / 1024 ELSE 0 END) AS FILE_SIZE
+				, FILE_TYPE, CAM_TYPE
+				, POI_X, POI_Y
+				, SAVE_STAT
+				, DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+				, CASE WHEN SAVE_STAT = 9 THEN '9' ELSE
+					(CASE WHEN((NOW() - REG_DT) > SAVE_SEC + 30) THEN '1' ELSE '0' END)
+				  END AS REC_STAT
+			FROM 
+				TB_CCTV_SAVED_INFO
+			WHERE
+				1 = 1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+			ORDER BY REG_DT DESC
+			LIMIT #recordCountPerPage# OFFSET #firstIndex#	
+
+	</select>
+
+	<select id="saved.selectListCount" parameterClass="pageVO" resultClass="int">
+		SELECT COUNT(*) TOTCNT
+		FROM 
+			TB_CCTV_SAVED_INFO
+		WHERE 
+			1=1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+
+</sqlMap>

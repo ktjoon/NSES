@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %5p [%c] %m%n" />
+        </Console>
+          <!-- <RollingFile name="file" fileName="/Users/rimeorange/Documents/all.log" filePattern="/Users/rimeorange/Documents/all.%i.%d{yyyy-MM-dd}.log">
+			   <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+			   <Policies>
+			    <SizeBasedTriggeringPolicy size="10MB" /> 
+			   </Policies>
+		  </RollingFile> -->
+    </Appenders>
+    <Loggers>
+    	<!--  
+        <Logger name="java.sql" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+         -->
+        <Logger name="java.sql" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Logger name="egovframework" level="DEBUG" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+          <!-- log SQL with timing information, post execution -->
+        <Logger name="jdbc.sqltiming" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="console" />
+        </Logger>
+        <Root level="ERROR">
+            <AppenderRef ref="console" />
+            <!--  <appender-ref ref="file" /> -->
+        </Root>        
+    </Loggers>
+</Configuration>

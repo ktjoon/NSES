@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jdbc="http://www.springframework.org/schema/jdbc"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+        http://www.springframework.org/schema/jdbc  http://www.springframework.org/schema/jdbc/spring-jdbc-3.2.xsd">
+	
+	<jdbc:embedded-database id="dataSource" type="HSQL">
+		<jdbc:script location= "classpath:/db/sampledb.sql"/>
+	</jdbc:embedded-database>
+	
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/egovfwork/properties/jdbc.properties</value>
+			</list>
+		</property>
+	</bean>
+	
+    
+    <!-- Nses Mysql -->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${jdbc.driverClassName}"/>
+        <property name="url" value="${jdbc.url}" />
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}" />
+        <property name="defaultAutoCommit" value="false"/>
+    </bean>
+    
+    
+    <!-- Emrs Oracle -->
+    <bean id="emrsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="driverClassName" value="${ojdbc.driverClassName}"/>
+      	<!-- <property name="url" value="jdbc:oracle:thin:@14.63.215.12:1521:ORA" />
+        <property name="username" value="GOLDENTIME"/>
+        <property name="password" value="qkdwocjd2014"/> -->
+        <property name="url" value="${ojdbc.url}"/>
+		<property name="username" value="${ojdbc.username}"/>
+		<property name="password" value="${ojdbc.password}"/> 
+    </bean>
+
+    
+</beans>

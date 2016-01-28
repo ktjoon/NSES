@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="CarOwner">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="ownerVO" type="nses.cms.vo.CarOwnerVO"/>
+
+	<resultMap id="carOwnInfoRES" class="nses.cms.vo.CarOwnerVO">
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="own_name" column="own_name"/>
+		<result property="tel_no" column="tel_no"/>
+		<result property="reg_dt" column="reg_dt"/>
+		<result property="mod_dt" column="mod_dt"/>
+		<result property="use_stat" column="use_stat"/>
+	</resultMap>
+
+	<select id="carOwner.selectData" parameterClass="ownerVO" resultMap="carOwnInfoRES">
+		SELECT 
+				OWN_CAR_NO ,OWN_NAME ,TEL_NO ,USE_STAT
+				,DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+				,DATE_FORMAT(MOD_DT, '%Y-%m-%d %H:%i:%s') AS MOD_DT 
+		FROM 
+				TB_CAR_OWNER
+		WHERE
+				OWN_CAR_NO		= #own_car_no#
+	</select>
+	
+	<select id="carOwner.selectListData" parameterClass="pageVO" resultMap="carOwnInfoRES">
+		SELECT 
+				OWN_CAR_NO ,OWN_NAME ,TEL_NO ,USE_STAT 
+				,DATE_FORMAT(REG_DT, '%Y-%m-%d %H:%i:%s') AS REG_DT
+				,DATE_FORMAT(MOD_DT, '%Y-%m-%d %H:%i:%s') AS MOD_DT
+		FROM 
+				TB_CAR_OWNER
+		WHERE
+				1 = 1
+				<isNotEmpty property="searchCondition">
+					<isNotEmpty property="searchKeyword" prepend="AND">
+						$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+					</isNotEmpty>
+				</isNotEmpty>
+		ORDER BY REG_DT DESC
+		LIMIT #recordCountPerPage# OFFSET #firstIndex#	
+	</select>
+
+	<select id="carOwner.selectListCount" parameterClass="pageVO" resultClass="int">
+		SELECT COUNT(*) TOTCNT
+		FROM 
+			TB_CAR_OWNER
+		WHERE 
+			1=1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+
+	<insert id="carOwner.insertData">
+		<![CDATA[
+			INSERT INTO 
+				TB_CAR_OWNER 
+				(
+					OWN_CAR_NO
+					, OWN_NAME
+					, TEL_NO
+					, REG_DT
+				)
+			VALUES
+				(
+					#own_car_no#
+					, #own_name#
+					, #tel_no#
+					, sysdate()
+				)
+		]]>
+	</insert>
+
+	<update id="carOwner.updateData" parameterClass="ownerVO">
+		UPDATE TB_CAR_OWNER
+		SET 
+			OWN_NAME		= #own_name#
+			, TEL_NO	= #tel_no#
+			<isNotEmpty property="use_stat" prepend=",">
+				USE_STAT		= #use_stat#
+			</isNotEmpty>
+			, MOD_DT		= sysdate()
+		WHERE 
+			OWN_CAR_NO			= #own_car_no#
+	</update>
+	
+	<delete id="carOwner.deleteData" parameterClass="ownerVO">
+		DELETE FROM TB_CAR_OWNER
+		WHERE
+			OWN_CAR_NO		= #own_car_no#
+	</delete>
+</sqlMap>

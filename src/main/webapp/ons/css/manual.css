@@ -1,0 +1,49 @@
+body{
+	margin: 0 auto;
+}
+
+.pop_div{
+	width: 990px;
+}
+
+.menu{
+	position: fixed;
+	background-image: url('../images/manual/bg_leftmenu.gif');
+	height: 100%;
+}
+
+.menu div{
+	width: 120px;
+	background-image: url('../images/manual/menu_off.gif');
+	height: 53px;
+	cursor: pointer;
+}
+
+.menu .click, .menu div:hover{ 
+	width: 120px;
+	background-image: url('../images/manual/menu_on.gif');
+	cursor: pointer;
+}
+
+.menu .no2{ background-position-y: -53px; height: 52px;}
+.menu .no3{ background-position-y: -105px; }
+.menu .no4{ background-position-y: -158px;}
+.menu .no5{ background-position-y: -211px; }
+.menu .no6{ background-position-y: -264px;}
+.menu .no7{ background-position-y: -317px; }
+.menu .no8{ background-position-y: -370px;}
+.menu .no9{ background-position-y: -423px;}
+.menu .no10{ background-position-y: -476px;}
+
+
+.content{
+	float: left;
+	background-image: url('../images/manual/bg.jpg');
+	margin-left: 120px;
+
+}
+
+.content div{
+	padding: 50px;
+	width: 770px;
+}

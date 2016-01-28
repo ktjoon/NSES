@@ -1,0 +1,383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="RecogImg">
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="recogImgVO" type="nses.ons.vo.RecogImgVO"/>
+	
+	<resultMap id="carOwnerRES" class="nses.ons.vo.CarOwnerVO">
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="own_name" column="own_name"/>
+		<result property="tel_no" column="tel_no"/>
+		<result property="sch_dt" column="sch_dt"/>
+	</resultMap>
+	
+	<resultMap id="recogImgRES" class="nses.ons.vo.RecogImgVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="enforce_stat" column="enforce_stat"/>
+		<result property="enforce_dt" column="enforce_dt"/>
+		<result property="user_id" column="user_id"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+	
+	<resultMap id="recogImgDetailRES" class="nses.ons.vo.RecogDetailVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="recog_time" column="recog_time"/>
+		<result property="recog_type" column="recog_type"/>
+		<result property="recog_car_no" column="recog_car_no"/>
+		<result property="cctv_key" column="cctv_key"/>
+		<result property="cctv_name" column="cctv_name"/>
+		<result property="poi_x" column="poi_x"/>
+		<result property="poi_y" column="poi_y"/>
+		<result property="poi_addr" column="poi_addr"/>
+		<result property="sms_stat" column="sms_stat"/>
+		<result property="sms_dt" column="sms_dt"/>
+		<result property="recog_img_rect" column="recog_img_rect"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+
+	<resultMap id="recogImageRES" class="nses.ons.vo.RecogDetailVO">
+		<result property="recog_time" column="recog_time"/>
+		<result property="img_data1" column="img_data1"/>
+		<result property="img_data2" column="img_data2"/>
+		<result property="img_data3" column="img_data3"/>
+	</resultMap>
+	
+	<resultMap id="enforceConfigRES" class="nses.ons.vo.EnforceConfigVO">
+		<result property="enforce_time" column="enforce_time"/>
+		<result property="enforce_time_over" column="enforce_time_over"/>
+		<result property="crack_stat" column="crack_stat"/>
+		<result property="msg_auto_send" column="msg_auto_send"/>
+		
+	</resultMap>
+	
+	<resultMap id="msgConfigRES" class="nses.ons.vo.EnforceConfigVO">
+		<result property="msg_contents" column="msg_contents"/>
+		<result property="org_user_tel" column="org_user_tel"/>
+		<result property="sender_tel" column="sender_tel"/>
+	</resultMap>
+
+	<!-- 차주정보 반환 -->
+	<select id="recogImg.selectCarOwnInfo" parameterClass="java.lang.String" resultMap="carOwnerRES">
+		<![CDATA[
+			SELECT OWN_CAR_NO, OWN_NAME, TEL_NO
+				, (SELECT DATE_FORMAT(NOW(), '%Y%m%d%k%i%s') FROM DUAL) AS SCH_DT
+			FROM 
+				TB_CAR_OWNER
+			WHERE
+				OWN_CAR_NO = #own_car_no#
+		]]>	
+	</select>
+	
+	<!-- TB_RECOG_IMG_DATA -->
+	<select id="recogImg.selectRecogImgData" parameterClass="java.util.HashMap" resultMap="recogImgRES">
+	SELECT *
+		FROM 
+			TB_RECOG_IMG_DATA
+		WHERE 
+			OWN_CAR_NO	= #own_car_no#
+		AND
+			DSR_SEQ		= #dsr_seq#
+	</select>
+	
+	<!-- TB_RECOG_IMG_DETAIL -->
+	<select id="recogImg.selectRecogImgDetailList" parameterClass="java.util.HashMap" resultMap="recogImgDetailRES">
+		SELECT a.*
+			, b.RECOG_TIME
+			, b.RECOG_TYPE, b.RECOG_CAR_NO, b.CCTV_KEY, b.CCTV_NAME
+			, b.POI_X, b.POI_Y, b.POI_ADDR, b.SMS_STAT, b.SMS_DT
+			, b.IMG_DATA1, b.IMG_DATA2, b.IMG_DATA3
+			, b.RECOG_IMG_RECT
+		FROM 
+			TB_RECOG_IMG_DATA a
+		JOIN 
+			TB_RECOG_IMG_DETAIL b
+		ON(a.DSR_SEQ = b.DSR_SEQ AND a.OWN_CAR_NO = b.OWN_CAR_NO)
+		WHERE 
+			a.OWN_CAR_NO	= #own_car_no#
+		AND
+			a.DSR_SEQ		= #dsr_seq#
+		ORDER BY RECOG_TIME DESC
+	</select>
+	
+	<!-- 사진저장용 이미지 조회.  -->
+	<select id="recogImg.selectRecogImglList" parameterClass="recogImgVO" resultClass="nses.ons.vo.RecogDetailVO">
+		SELECT a.*
+			, b.RECOG_TIME
+			, b.RECOG_TYPE, b.RECOG_CAR_NO, b.CCTV_KEY, b.CCTV_NAME
+			, b.POI_X, b.POI_Y, b.POI_ADDR, b.SMS_STAT, b.SMS_DT
+			, b.IMG_DATA1, b.IMG_DATA2, b.IMG_DATA3
+			, b.RECOG_IMG_RECT
+			, (SELECT CCTV_SEQNO FROM TB_CCTV_INFO WHERE CCTV_GUID = b.CCTV_KEY) as CCTV_SEQNO
+		FROM 
+			TB_RECOG_IMG_DATA a
+		JOIN 
+			TB_RECOG_IMG_DETAIL b
+		ON(a.DSR_SEQ = b.DSR_SEQ AND a.OWN_CAR_NO = b.OWN_CAR_NO)
+		WHERE 
+			a.OWN_CAR_NO	= #own_car_no#
+		AND
+			a.DSR_SEQ		= #dsr_seq#
+		ORDER BY RECOG_TIME DESC
+	</select>
+	
+	
+	<!-- TB_RECOG_IMG_DETAIL 이미지 데이터 조회 -->
+	<select id="recogImg.selectRecogImage" parameterClass="java.util.HashMap" resultMap="recogImageRES">
+		SELECT 
+			RECOG_TIME
+			<isEqual property="img_data" compareValue="1">
+				, IMG_DATA1
+				, null AS IMG_DATA2
+				, null AS IMG_DATA3
+			</isEqual>
+			<isEqual property="img_data" compareValue="2">
+				, IMG_DATA2
+				, null AS IMG_DATA1
+				, null AS IMG_DATA3
+			</isEqual>
+			<isEqual property="img_data" compareValue="3">
+				, IMG_DATA3
+				, null AS IMG_DATA1
+				, null AS IMG_DATA2
+			</isEqual>
+		FROM 
+			TB_RECOG_IMG_DETAIL
+		WHERE 
+				OWN_CAR_NO	= #car_no#
+			AND 
+				DSR_SEQ		= #dsr_seq#
+			AND
+				RECOG_TIME	= #recog_time#
+	</select>
+	
+	
+	<!-- 단속 시간 및 단속가능 여부 체크		0: 단속불가	1: 단속가능 -->
+	<select id="recogImg.selectCrackStat" resultMap="enforceConfigRES">
+		<![CDATA[
+			SELECT a.*
+  				, IFNULL((TIMESTAMPDIFF(SECOND, STR_TO_DATE(MIN(RECOG_TIME),'%Y%m%d%H%i%s'), #curr_dt#) >= ENFORCE_TIME), '0') AS ENFORCE_TIME_OVER
+				, (SELECT CASE WHEN DATE_FORMAT(NOW(), '%H:%i') >= ENFORCE_START_TIME AND DATE_FORMAT(NOW(), '%H:%i') <= ENFORCE_END_TIME THEN '1' ELSE '0' END FROM TB_ENFORCE_CONFIG) AS CRACK_STAT
+				, (SELECT MSG_AUTO_SEND FROM TB_ENFORCE_CONFIG) AS MSG_AUTO_SEND
+			FROM
+				(
+				SELECT 
+					DSR_SEQ, OWN_CAR_NO, RECOG_TIME, (SELECT ENFORCE_TIME FROM TB_ENFORCE_CONFIG b) AS ENFORCE_TIME
+				FROM 
+					TB_RECOG_IMG_DETAIL
+				)a
+			WHERE
+  				OWN_CAR_NO  = #own_car_no#
+			AND
+  				DSR_SEQ = #dsr_seq#
+
+		]]>
+		<!-- SELECT 
+				ENFORCE_TIME
+				, CASE WHEN DATE_FORMAT(NOW(), '%H:%i') >= ENFORCE_START_TIME AND DATE_FORMAT(NOW(), '%H:%i') <= ENFORCE_END_TIME THEN '1' ELSE '0' END AS CRACK_STAT
+				, (SELECT IFNULL((TIMESTAMPDIFF(SECOND, STR_TO_DATE(MIN(a.RECOG_TIME),'%Y%m%d%H%i%s'), #curr_dt#) >= b.ENFORCE_TIME), '0')
+				FROM TB_RECOG_IMG_DETAIL a
+				JOIN TB_ENFORCE_CONFIG b) AS ENFORCE_TIME_OVER
+			FROM 
+				TB_ENFORCE_CONFIG -->
+	</select>
+	
+	<!-- SMS문자 전송에 필요한 발신자, 관리자 번호 및 메세지 리턴 -->
+	<select id="recogImg.selectMsgConfigData" resultMap="msgConfigRES">
+		SELECT 
+			MSG_CONTENTS, ORG_USER_TEL, SENDER_TEL, MSG_AUTO_SEND
+		FROM 
+			TB_ENFORCE_CONFIG
+	</select>
+	
+	<!-- 증거사진 데이터 추가 -->
+	<insert id="recogImg.insertData">
+		INSERT INTO TB_RECOG_IMG_DATA 
+			(
+				DSR_SEQ
+				, OWN_CAR_NO
+				<isEqual property="recog_flag" compareValue="2">
+					, ENFORCE_STAT
+					, ENFORCE_DT
+				</isEqual>
+				
+				, USER_ID
+			)
+			VALUES 
+			(
+				#dsr_seq#
+				, #own_car_no#
+				<isEqual property="recog_flag" compareValue="2">
+					, '1'
+					, NOW()
+				</isEqual>
+				, #user_id#
+			)
+	</insert>
+	
+	<!-- 증거사진 상세 추가 -->
+	<insert id="recogImg.insertDetailData">
+		INSERT INTO TB_RECOG_IMG_DETAIL 
+			(
+				DSR_SEQ
+				, OWN_CAR_NO
+				, RECOG_TIME
+				, RECOG_TYPE
+				, RECOG_CAR_NO
+				, CCTV_KEY
+				, CCTV_NAME
+				, POI_X
+				, POI_Y
+				, POI_ADDR
+				<isEqual property="recog_flag" compareValue="3">
+					, SMS_STAT
+					, SMS_DT
+				</isEqual>
+				, IMG_DATA1
+				, IMG_DATA2
+				, IMG_DATA3
+				, RECOG_IMG_RECT
+			)
+			VALUES 
+			(
+				#dsr_seq#
+				, #own_car_no#
+				, #recog_time#
+				, #recog_type#
+				, #recog_car_no#
+				, #cctv_key#
+				, #cctv_name#
+				, #poi_x#
+				, #poi_y#
+				, #poi_addr#
+				<isEqual property="recog_flag" compareValue="3">
+					, '1'
+					, NOW()
+				</isEqual>
+				, #img_data1#
+				, #img_data2#
+				, #img_data3#
+				, #recog_img_rect#
+			)
+	</insert>
+	
+	<!-- SMS메세지 전송 -->
+	<insert id="recogImg.insertMsgData">
+		INSERT INTO MSG_DATA 
+			(
+				REQ_DATE
+				, CUR_STATE
+				, CALL_TO
+				, CALL_FROM
+				, SMS_TXT
+				, MSG_TYPE
+			) 
+		VALUES
+			(
+				now()
+				, 0
+				, #call_to#
+				, #call_from#
+				, #sms_txt#
+				, #msg_type#
+			)
+	</insert>
+	
+	<!-- 장애처리 단속 정보 및 상태 업데이트  -->
+	<update id="recogImg.updateData">
+		UPDATE TB_RECOG_IMG_DATA
+		SET
+			
+			USER_ID		= #user_id#
+		WHERE
+			DSR_SEQ		= #dsr_seq#
+		AND
+			OWN_CAR_NO	= #own_car_no# 
+	</update>
+	
+	
+	<!-- 장애 처리 단속 및 상태 업데이 -->
+	<update id="recogImg.updateEnforceData">
+		UPDATE TB_RECOG_IMG_DATA
+		SET
+			ENFORCE_STAT	= '1'
+			, ENFORCE_DT	= NOW()
+		WHERE
+			DSR_SEQ			= #dsr_seq#
+		AND
+			OWN_CAR_NO		= #own_car_no# 
+	</update>
+	<!-- 장애 처리 메세지 전송 및 상태 업데이트 -->
+	<update id="recogImg.updateMsgData">
+		UPDATE TB_RECOG_IMG_DETAIL
+		SET
+			SMS_STAT		= '1'
+			, SMS_DT		= NOW()
+		WHERE
+			DSR_SEQ			= #dsr_seq#
+		AND
+			OWN_CAR_NO		= #own_car_no# 
+		AND
+			RECOG_TIME		= #recog_time#
+	</update>
+
+	<!-- 동영상 저장 추가 -->
+	<insert id="recogImg.insertRecordData">
+		INSERT INTO TB_CCTV_SAVED_INFO 
+			(
+				FILE_NAME
+				, CAR_NO
+				, FILE_SERVER
+				, FILE_PATH
+				, FILE_SIZE
+				, FILE_TYPE
+				, CAM_TYPE
+				, SAVE_SEC
+				, POI_X
+				, POI_Y
+				, USER_ID
+			)
+			VALUES 
+			(
+				#file_name#
+				, #car_no#
+				, #file_server#
+				, #file_path#
+				, #file_size#
+				, #file_type#
+				, #cam_type#
+				, #save_sec#
+				, #poi_x#
+				, #poi_y#
+				, #user_id#
+			)
+	</insert>
+	
+	<!-- 저장 동영상 수정 -->
+	<update id="recogImg.updateRecordData">
+		UPDATE TB_CCTV_SAVED_INFO
+		SET
+			FILE_PATH		= #file_path#
+			, FILE_SIZE		= #file_size#
+			, SAVE_STAT		= #save_stat#
+		WHERE
+			FILE_NAME = #file_name#
+	</update>
+
+	<!-- SMS문자 전송에 필요한 발신자, 관리자 번호 및 메세지 리턴 -->
+	<select id="recogImg.selectLatestRecFileName" resultClass="egovMap">
+		<![CDATA[
+		SELECT 
+			FILE_NAME
+		FROM 
+			TB_CCTV_SAVED_INFO
+		WHERE
+			CAR_NO = #car_no# AND NOW() - REG_DT < 60 
+		LIMIT 1
+		]]>
+	</select>
+	
+	
+</sqlMap>

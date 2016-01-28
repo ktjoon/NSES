@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Terminate">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="recogImgVO" type="nses.ons.vo.RecogImgVO"/>
+	
+	<resultMap id="recogImgRES" class="nses.ons.vo.RecogImgVO">
+		<result property="dsr_seq" column="dsr_seq"/>
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="enforce_stat" column="enforce_stat"/>
+		<result property="enforce_dt" column="enforce_dt"/>
+		<result property="user_id" column="user_id"/>
+		<result property="reg_dt" column="reg_dt"/>
+	</resultMap>
+	
+	<select id="terminate.selectListData" parameterClass="recogImgVO" resultClass="egovMap">
+		SELECT MAX(m.DSR_SEQ) as DSR_SEQ , m.OWN_CAR_NO, MIN(CAST(d.RECOG_TIME as DATETIME)) AS SREG_DT, 
+			MAX(CAST(d.RECOG_TIME as DATETIME)) LREG_DT,
+		CASE WHEN m.ENFORCE_STAT > 0
+			 THEN 'O'
+			 ELSE 'X' 
+	         END  AS TERMINATE_YN
+			,(SELECT CCTV_NAME FROM TB_RECOG_IMG_DETAIL s WHERE s.DSR_SEQ = d.DSR_SEQ AND s.OWN_CAR_NO = d.OWN_CAR_NO AND s.RECOG_TIME = MIN(d.RECOG_TIME)) as CCTV_NAME
+		FROM TB_RECOG_IMG_DATA m LEFT JOIN TB_RECOG_IMG_DETAIL d
+			ON m.DSR_SEQ = d.DSR_SEQ AND m.OWN_CAR_NO = d.OWN_CAR_NO
+		WHERE m.DSR_SEQ = #dsr_seq#
+		GROUP BY 
+			m.DSR_SEQ, m.OWN_CAR_NO
+			
+		<!-- SELECT MAX(m.DSR_SEQ) as DSR_SEQ , m.OWN_CAR_NO, MIN(CAST(d.RECOG_TIME as DATETIME)) AS SREG_DT, 
+			MAX(CAST(d.RECOG_TIME as DATETIME)) LREG_DT,
+		CASE WHEN  MAX(CAST(d.RECOG_TIME as DATETIME)) - MIN(CAST(d.RECOG_TIME as DATETIME)) >= (SELECT MAX(ENFORCE_TIME) FROM TB_ENFORCE_CONFIG)
+			 THEN 'O'
+			 ELSE 'X' 
+	         END  AS TERMINATE_YN
+			,(SELECT CCTV_NAME FROM TB_RECOG_IMG_DETAIL s WHERE s.DSR_SEQ = d.DSR_SEQ AND s.OWN_CAR_NO = d.OWN_CAR_NO AND s.RECOG_TIME = MIN(d.RECOG_TIME)) as CCTV_NAME
+		FROM TB_RECOG_IMG_DATA m LEFT JOIN TB_RECOG_IMG_DETAIL d
+			ON m.DSR_SEQ = d.DSR_SEQ AND m.OWN_CAR_NO = d.OWN_CAR_NO
+		WHERE m.DSR_SEQ = #dsr_seq#
+		GROUP BY 
+			m.DSR_SEQ, m.OWN_CAR_NO -->
+	</select>
+</sqlMap>

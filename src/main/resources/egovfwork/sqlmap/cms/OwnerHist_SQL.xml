@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="OwnerHist">
+
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="ownerHistVO" type="nses.cms.vo.OwnerHistVO"/>
+
+	<resultMap id="ownerHistRES" class="nses.cms.vo.OwnerHistVO">
+		<result property="own_seq" column="own_seq"/>
+		<result property="acc_kind" column="acc_kind"/>
+		<result property="acc_name" column="acc_name"/>
+		<result property="own_car_no" column="own_car_no"/>
+		<result property="reg_dt" column="reg_dt"/>
+		<result property="user_id" column="user_id"/>
+	</resultMap>
+
+	<select id="ownerHist.selectListData" parameterClass="pageVO" resultMap="ownerHistRES">
+		SELECT 
+			OWN_SEQ, ACC_KIND, OWN_CAR_NO
+			, (CASE ACC_KIND 
+				WHEN 'S' THEN '조회'
+				WHEN 'I' THEN '등록'
+				WHEN 'U' THEN '수정'
+				WHEN 'D' THEN '삭제'
+				WHEN 'V' THEN '보기'
+				ELSE '기타' END) AS ACC_NAME
+			, DATE_FORMAT(REG_DT, '%Y-%m-%d %k:%i') AS REG_DT
+			, USER_ID
+		FROM 
+			TB_OWNER_HIST
+		WHERE 
+			1 = 1
+				<isNotEmpty property="searchCondition">
+					<isNotEmpty property="searchKeyword" prepend="AND">
+						$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+					</isNotEmpty>
+				</isNotEmpty>
+		ORDER BY REG_DT DESC
+		LIMIT #recordCountPerPage# OFFSET #firstIndex#	
+	</select>
+
+	<select id="ownerHist.selectListCount" parameterClass="pageVO" resultClass="int">
+		SELECT COUNT(*) TOTCNT
+		FROM 
+			TB_OWNER_HIST
+		WHERE 
+			1=1
+			<isNotEmpty property="searchCondition">
+				<isNotEmpty property="searchKeyword" prepend="AND">
+					$searchCondition$ LIKE CONCAT('%', #searchKeyword#, '%')
+				</isNotEmpty>
+			</isNotEmpty>
+	</select>
+
+	<insert id="ownerHist.insertData">
+		INSERT INTO 
+			TB_OWNER_HIST
+			(
+				ACC_KIND
+				, OWN_CAR_NO
+				, USER_ID
+			)
+		VALUES
+			(
+				#acc_kind#
+				, #own_car_no#
+				, #user_id#
+			)
+	</insert>
+
+</sqlMap>

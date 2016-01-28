@@ -1,0 +1,38 @@
+.mobile_content {
+	width: 96%;
+	margin: 0 auto;
+	text-align: center;
+}
+.zipnav {
+	height: 30px;
+	line-height: 30px;
+	margin: 10px 20px 0 20px;
+}
+.zipnav li {
+	padding-left: 10px;
+	padding-right: 10px;
+	cursor: pointer;
+}
+.zipnav li.active {
+	background: #ffffff;
+	color: #005ca9;
+	border: 1px solid #deddde;
+	border-bottom: none;
+}
+.resultarea {
+	padding: 10px;
+	border: 1px solid #d9d9d9;
+	margin: 0 20px 20px 20px;
+	height: 300px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+}
+.addrlist {
+	height: 25px;
+	line-height: 25px;
+	cursor: pointer;
+	width: 100%;
+}
+.addrlist:hover {
+	background: #ebebeb
+}

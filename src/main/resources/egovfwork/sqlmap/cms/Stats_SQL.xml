@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="stats">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="pageVO" type="nses.common.vo.BasePageVO"/>
+	<typeAlias  alias="statsVO" type="nses.cms.vo.StatsVO"/>
+
+	
+	<select id="stats.selectData" parameterClass="statsVO" resultClass="egovMap">
+		SELECT  A.RECOG_DT
+		, IFNULL(SUM(CASE WHEN A.RECOG_DT = A.RECOG_DT THEN 1 ELSE 0 END), 0) AS CNT_NUM
+		 FROM 
+		 ( 
+		   SELECT 
+			<isEqual property="type" compareValue="1">
+				SUBSTR(date_format(ENFORCE_DT, '%Y%m%d'), 1, 6) RECOG_DT
+			</isEqual>
+			<isEqual property="type" compareValue="0">
+				SUBSTR(date_format(ENFORCE_DT, '%Y%m%d'), 1, 8) RECOG_DT
+			</isEqual>
+		   FROM TB_RECOG_IMG_DATA 
+			 WHERE 1=1 
+			AND ENFORCE_STAT = '1' 
+			<isEqual property="type" compareValue="1">
+				<![CDATA[
+				AND SUBSTR(date_format(ENFORCE_DT, '%Y%m%d'), 1, 6) >= #start_dt#
+            	AND SUBSTR(date_format(ENFORCE_DT, '%Y%m%d'), 1, 6) <= #end_dt#
+            	]]>
+			</isEqual>
+			<isEqual property="type" compareValue="0">
+				<![CDATA[
+				AND SUBSTR(date_format(ENFORCE_DT, '%Y%m%d'), 1, 8) >= #start_dt#
+            	AND SUBSTR(date_format(ENFORCE_DT, '%Y%m%d'), 1, 8) <= #end_dt#
+            	]]>
+			</isEqual>
+			
+		) A
+        GROUP BY A.RECOG_DT
+	</select>
+	
+</sqlMap>

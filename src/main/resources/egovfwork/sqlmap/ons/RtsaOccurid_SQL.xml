@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="rtsaInfo">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="rtsaInfoVO" type="nses.ons.vo.RtsaInfoVO"/>
+
+	<resultMap id="rtsaInfoRES" class="nses.ons.vo.RtsaInfoVO">
+		<result property="reg_date" 	column="reg_date"/>
+		<result property="type_desc" 	column="type_desc"/>
+		<result property="type_traffic" column="type_traffic"/>
+		<result property="gis_x" 		column="gis_x"/>
+		<result property="gis_y" 		column="gis_y"/>
+		<result property="coord_x" 		column="coord_x"/>
+		<result property="coord_y" 		column="coord_y"/>
+	</resultMap>
+	
+	<select id="rtsaInfo.selectData" parameterClass="rtsaInfoVO" resultMap="rtsaInfoRES">
+		SELECT 
+				REG_DATE
+				, RTRIM(TYPE_DESC) AS TYPE_DESC
+				, (CASE RTRIM(TYPE_DESC) 
+					WHEN '1' THEN '1'
+					WHEN '2' THEN '2'
+					WHEN '3' THEN '1'
+					WHEN '4' THEN '2'
+					ELSE '5' END) AS TYPE_TRAFFIC
+				, GIS_X
+				, GIS_Y
+				, COORD_X
+				, COORD_Y
+		FROM 
+			TB_RTSA_OCCURID
+		WHERE
+			USE_STAT = '1'
+			AND COORD_X BETWEEN (#coord_x# - 10) AND (#coord_x# + 10)
+			AND COORD_Y BETWEEN (#coord_y# - 10) AND (#coord_y# + 10)
+		ORDER BY REG_DATE DESC
+		LIMIT 1 OFFSET 0
+	</select>
+	
+	
+	<update id="rtsaInfo.updateUseData">
+		UPDATE TB_RTSA_OCCURID
+		SET 
+			USE_STAT = '0'
+		WHERE 
+			REG_DT &lt; DATE_SUB(CURDATE(),INTERVAL 7 DAY) 
+	</update>
+	
+	<insert id="rtsaInfo.insertListData" parameterClass="java.util.List">
+			INSERT INTO TB_RTSA_OCCURID (
+				REG_DATE
+				, TYPE_DESC
+				, TYPE_OTHER
+				, STATUS_DESC
+				, GIS_X
+				, GIS_Y
+				, COORD_X
+				, COORD_Y
+			)
+		<dynamic>
+		<iterate prepend="VALUES" conjunction="," >
+			(
+				 #[].reg_date#
+				,#[].type_desc#
+				,#[].type_other#
+				,#[].status_desc#
+				,#[].gis_x#
+				,#[].gis_y#
+				,#[].coord_x#
+				,#[].coord_y#   
+			)
+		</iterate>
+		</dynamic>
+	</insert>
+</sqlMap>
