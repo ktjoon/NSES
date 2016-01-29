@@ -20,6 +20,7 @@ import java.util.List;
 import nses.common.dao.NsesAbstractDAO;
 import nses.common.utils.ComStr;
 import nses.ons.vo.MsgInfoVO;
+import nses.ons.vo.UserConfigVO;
 
 import org.springframework.stereotype.Repository;
 
@@ -73,6 +74,27 @@ public class MsgInfoDAO extends NsesAbstractDAO {
      */
     public List<?> selectListData(MsgInfoVO vo) throws Exception {
         return list("msgInfo.selectListData", vo);
+    }
+    /**
+     * 처리 내용 : 메세지 리스트 안보이기
+     * 
+     * @param vo
+     * @return
+     * @throws Exception
+     */
+    public int updateMessageList(MsgInfoVO vo) throws Exception {
+		return update("msgInfo.updateMessageList", vo);
+	}
+    
+    /**
+     * 처리 내용 : 수신 메세지 리스트 반환
+     * 
+     * @param 
+     * @return
+     * @throws Exception
+     */
+    public List<?> selectSMSList(MsgInfoVO vo) throws Exception {
+        return list("msgInfo.selectSMSList");
     }
 
 	

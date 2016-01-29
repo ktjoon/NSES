@@ -45,6 +45,15 @@ public interface MsgInfoService {
 	 * @throws Exception
 	 */
 	 List<?> selectListData(MsgInfoVO vo) throws Exception;
+	 
+	 /**
+		 * 수신 메세지 리스트 반환
+		 * 
+		 * @param vo
+		 * @return
+		 * @throws Exception
+		 */
+		 List<?> selectSMSList(MsgInfoVO vo) throws Exception;
 	
 	/**
 	 * 메세지 정보를 등록한다.
@@ -63,6 +72,15 @@ public interface MsgInfoService {
 	 * @throws Exception
 	 */
 	ResultVO insertCctvData(MsgInfoVO vo) throws Exception;
+	
+	/**
+	 * 메세지 리스트 안보이기
+	 * 
+	 * @param vo
+	 * @return 등록 결과
+	 * @exception Exception
+	 */
+	int updateMessageList(MsgInfoVO vo) throws Exception;
 	
 	
 }

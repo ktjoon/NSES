@@ -13,7 +13,8 @@
 		<result property="snd_stat" column="snd_stat"/>
 		<result property="reg_dt" column="reg_dt"/>
 	</resultMap>
-
+	
+	
 	<select id="msgInfo.selectListData" parameterClass="msgInfoVO" resultMap="msgInfoRES">
 		SELECT 
 			a.MSG_SEQ, a.CAR_NO, a.MSG_TYPE, a.MSG_CONTENTS, a.MSG_EXTRA, a.CCTV_TYPE, a.CCTV_DBKEY
@@ -33,6 +34,25 @@
 		AND
 			a.MSG_TYPE	= '1'
 	</select>
+	
+	<!-- add by ktjoon 2016-01 -->
+	<select id="msgInfo.selectSMSList"  parameterClass="msgInfoVO"  resultClass="nses.ons.vo.MsgInfoVO">
+		<![CDATA[
+			SELECT MSG_SEQ, MSG_TYPE, MSG_CONTENTS, REG_DT, IMG_URL
+			FROM TB_MESSAGE_INFO
+			WHERE RECV_DT IS NULL
+		]]>
+	</select>
+	
+	<!-- add by ktjoon 2016-01 -->
+	<update id="msgInfo.updateMessageList">
+		UPDATE 
+			TB_MESSAGE_INFO
+		SET
+			RECV_DT	= sysdate()
+		WHERE
+			MSG_SEQ IN( #user_id# )
+	</update>
 
 	<insert id="msgInfo.insertData">
 		INSERT INTO 

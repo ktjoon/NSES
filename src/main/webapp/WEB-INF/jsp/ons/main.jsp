@@ -1393,40 +1393,38 @@ $(document).ready(function() {
 	showSMS();
 	
 });
-
 /* add by ktjoon 2016-01 */
 //차량메시지 수신 팝업 호출
 function showSMS() {
 	
-	var url = '/ons/carmsg/list_ajax.do';
+	var url = '/ons/carmsg/smsList_ajax.do';
 	var params = {
 	};
-	
-	net_ajax(url, params, function (data) {
-		
-		if (data.retCode == const_ret_ok) {
-			
-			$pop = createPop($pop_sms);
 
+	net_ajax(url, params, function (data) {
+		if (data.retCode == const_ret_ok) {
+			$pop = createPop($pop_sms);
 			//$pop.find('#span_carno').text(car_no);
-			//$pop.find('#msg_carid').val(car_id);
-			//$pop.find('#msg_carno').val(car_no);
-			//$pop.find('#msg_dsr_seq').val(d_seq);
 			
 			var items	= data.items;
 			var sHtml	= '';
+			var msg_seq = '';
 			
 			if (items.length > 0) {
 				for (var i = 0; i < items.length; i ++) {
 					sHtml += items[i].msg_contents;
 					sHtml += '<br />' + items[i].reg_dt + '';
-					if (items[i].snd_stat == '0')
-						sHtml += ' (*)';
+					if(items[i].img_url != null) {
+						sHtml += '<br /><a href="' + items[i].img_url + '" target="_blank"><img src="' + items[i].img_url + '" width="250" height="200" /></a>';
+					}
 					sHtml += '<br /><br />';
+					msg_seq += items[i].msg_seq + ',';
 				}
 			}
-			
 			$pop.find('.sms').html(sHtml);
+	
+			msg_seq = msg_seq.substring(0, msg_seq.length-1);
+			$pop.find('#msg_seq').val(msg_seq);
 		}
 	}, onNetCallbackDefaultError);
 	
@@ -1435,39 +1433,76 @@ function showSMS() {
 /* add by ktjoon 2016-01 */
 //차량메시지 닫기
 function closeSMS(pop) {
-	var	carid = $(pop).find('#msg_carid').val();
-	var	carno = $(pop).find('#msg_carno').val();
-	var	contents = $(pop).find('#msg_contents').val();
-	var	d_seq = $(pop).find('#msg_dsr_seq').val();
-
-	if (carno == '') {
-		alert('전송할 차량번호가 없습니다.');
-		return;
-	}
-	if (contents == '') {
-		alert('전송할 메시지를 입력하십시오.');
-		return;
-	}
+	
+	var	msg_seq = pop.find('#msg_seq').val();
+	//alert("msg_seq="+msg_seq);
+	
 	function onAjaxResult(data) {
+		alert(4);
+		/* 
 		if (data.retCode == const_ret_ok) {
 			removePop(pop);
 			alert("메시지가 전송 되었습니다.");
 		} else {
 			alert(data.retMsg);
 		}
+		alert(5); */
 	}
 
-	var url = '/ons/carmsg/reg_action.do';
+	var url = '/ons/carmsg/updateMessageList.do';
 	var params = {
-		msg_extra: d_seq, 
-		car_id: carid,
-		car_no: carno,
-		msg_contents: contents,
-		msg_type: '1'
+		msg_seq : '1,2'
 	};
 	
-	cmLog('car_no: ' + carno + ', contents: ' + contents);
-	net_ajax(url, params, onAjaxResult, onNetCallbackDefaultError);
+	var arr_msg_seq = ["1","2"];
+	alert("params = " + params.msg_seq);
+	//alert("string = " + string);
+	
+	//net_ajax(url, params, onAjaxResult, onNetCallbackDefaultError);
+	
+	$.ajax({
+		type : "POST",
+		url : "/ons/carmsg/updateMessageList.do",
+		data : {"arr_msg_seq" : arr_msg_seq},
+		async : true,
+		dataType : "json",
+		timeout : 10*60*1000,
+		success : removePop(pop),
+        error : function(request,status,error){
+	        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+	       }    
+	}); 
+	
+	/* var params = {
+			msg_seq: msg_seq1
+	};
+	alert("params = " + params.msg_seq);
+	$.ajax({
+		type : "POST",
+		url : "/ons/carmsg/updateMessageList.do",
+		data : params,
+		async : true,
+		dataType : "json",
+		timeout : 10*60*1000,
+		success : removePop(pop),
+        error : function(request,status,error){
+	        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+	       }    
+	}); */
+	
+	
+	
+	 /* $.ajax({   
+	     type: "POST",  
+	     url: "/ons/carmsg/updateMessageList.do",   
+	     data: msg_seq,   
+	     dataType: "json",
+	     success: removePop(pop),
+	     error:function(request,status,error){
+	        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+	       }
+	     }
+	 ); */
 }
 
 
@@ -2041,10 +2076,9 @@ olleh.maps.DirectionsDrivePriority.PRIORITY_4 : 실시간 도로정보 우선
 	<!-- add by ktjoon 2016-01 메시지 수신 팝업 클래스 -->
 	<div class="pop-sms lp">
 		<div class="pop-top">
-			<div class="title">메시지 : 
-				<input id="msg_dsr_seq" type="hidden" value="" />
-				<input id="msg_carid" type="hidden" value="" />
-				<input id="msg_carno" type="hidden" value="" />
+			
+			<div class="title">메시지 수신
+				<input id="msg_seq" name="msg_seq" type="hidden" value="" />
 			</div>
 			<div class="btn-close btns">
 				<a href="javascript:;"><img src="./images/btn_close_off.png" onclick="removePop($(this).parent().parent().parent().parent())" /></a>
@@ -2053,12 +2087,9 @@ olleh.maps.DirectionsDrivePriority.PRIORITY_4 : 실시간 도로정보 우선
 		<div class="pop-content">
 			<div class="msg-area">
 				<div class="sms">
-					<!-- 해강한의원 앞 상황 안좋으니 원인재로 쪽으로 우회바람<br />관제센터 14:34 -->
 				</div>
-				<div class="me"></div>
 			</div>
-			<input id="msg_contents" class="message" placeholder="전송하실 메시지를 입력해주세요" style="padding: 0 0 0 10px;"></input>
-				<div class="bg03btn" onclick="sendCarMsg($(this).parent().parent())">닫기</div>
+			<div class="bg03btn" onclick="closeSMS($(this).parent().parent())">다시 안보기</div>
 		</div>
 	</div>
 

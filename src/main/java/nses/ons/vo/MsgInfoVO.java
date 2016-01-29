@@ -46,6 +46,9 @@ public class MsgInfoVO {
 	private String	user_id;
 	private String	dsr_seq;
 	
+	private String	img_url;
+	private String	arr_msgseq;
+	
 	
 	public int getMsg_seq() {
 		return msg_seq;
@@ -126,4 +129,22 @@ public class MsgInfoVO {
 	public void setDsr_seq(String dsr_seq) {
 		this.dsr_seq = dsr_seq;
 	}
+	public String getImg_url() {
+		return img_url;
+	}
+	public void setImg_url(String img_url) {
+		this.img_url = img_url;
+	}
+	public String getArr_msgseq() {
+		return arr_msgseq;
+	}
+	public void setArr_msgseq(String arr_msgseq) {
+		this.arr_msgseq = arr_msgseq;
+	}
+	
+	
+	
+	
+	
+	
 }

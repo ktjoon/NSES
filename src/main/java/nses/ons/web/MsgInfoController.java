@@ -15,6 +15,7 @@
  */
 package nses.ons.web;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -93,6 +94,25 @@ public class MsgInfoController {
 		ComUtils.responseJson(request, response, resVO);
 	}
 	
+	// add by ktjoon 2016-01
+	@RequestMapping("/ons/carmsg/smsList_ajax.do")
+	public void loadSmsListAjax(@ModelAttribute("msgVO") MsgInfoVO msgVO,  @RequestParam Map<String,Object> params, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		logger.info("/ons/carmsg/smsList_ajax.do");
+		//MsgInfoVO msgVO	= new MsgInfoVO();
+		
+		int nResCode	= BaseResVO.ERR_DATA_NOT_FOUND;
+		List<?> lstData		= msgInfoService.selectSMSList(msgVO);
+		
+		ResultListVO	resVO;
+		
+		if (lstData != null)
+			nResCode = BaseResVO.RET_OK;
+		resVO = ResultListVO.create(nResCode);
+		resVO.setItems(lstData);
+		
+		ComUtils.responseJson(request, response, resVO);
+	}
+	
 	@RequestMapping("/ons/carmsg/reg_action.do")
 	public void loadInfoRegAction(@ModelAttribute("msgVO") MsgInfoVO msgVO, @RequestParam Map<String,Object> params, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		logger.info("/ons/carmsg/reg_action.do");
@@ -140,6 +160,22 @@ public class MsgInfoController {
 			resVO	= msgInfoService.insertCctvData(msgVO);
 		}
 		
+		ComUtils.responseJson(request, response, resVO);
+	}
+	
+	@RequestMapping("/ons/carmsg/updateMessageList.do")
+	public void updateMessageList(@ModelAttribute("msgVO") MsgInfoVO msgVO, @RequestParam Map<String,Object> params, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		System.out.println("updateMessageList ============> ");
+		ResultVO resVO 		= null;
+		
+		//String msg_seq	= ComStr.toStr(params.get("msg_seq"));
+		String[] msg_seq	= request.getParameterValues("arr_msg_seq[]");
+		System.out.println("msg_seq ============ "+ Arrays.toString(msg_seq));
+		//msgVO.setMsg_seq(msg_seq);
+		
+		//int nRes	= 0;
+		//nRes	= msgInfoService.updateMessageList(msgVO);
+				
 		ComUtils.responseJson(request, response, resVO);
 	}
 

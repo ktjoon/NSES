@@ -25,6 +25,7 @@ import nses.common.vo.ResultVO;
 import nses.ons.dao.MsgInfoDAO;
 import nses.ons.service.MsgInfoService;
 import nses.ons.vo.MsgInfoVO;
+import nses.ons.vo.UserConfigVO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,11 @@ public class MsgInfoServiceImpl extends EgovAbstractServiceImpl implements MsgIn
 	@Override
 	public List<?> selectListData(MsgInfoVO vo) throws Exception {
 		return msgInfoDAO.selectListData(vo);
+	}
+	
+	@Override
+	public List<?> selectSMSList(MsgInfoVO vo) throws Exception {
+		return msgInfoDAO.selectSMSList(vo);
 	}
 
 	@Override
@@ -98,7 +104,11 @@ public class MsgInfoServiceImpl extends EgovAbstractServiceImpl implements MsgIn
 		
         return resVO;
 	}
-
+	
+	@Override
+	public int updateMessageList(MsgInfoVO vo) throws Exception {
+		return msgInfoDAO.updateMessageList(vo);
+	}
 	
 
 }
