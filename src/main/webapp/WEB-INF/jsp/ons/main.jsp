@@ -40,7 +40,10 @@
 	var $pop_mosaic;
 	var $pop_sendcourse;
 	var $pop_msg;
-	var $pop_sms;// add by ktjoon 2016-01
+	
+	// add by ktjoon 2016-01
+	var $pop_sms;
+	var isSmsOpen = false;
 
 	//사용자설정정보(탐색조건 및 CCTV매트릭스설정)
 	var	g_userCfg = {
@@ -1400,20 +1403,33 @@ function showSMS() {
 	var url = '/ons/carmsg/smsList_ajax.do';
 	var params = {
 	};
-
+	
 	net_ajax(url, params, function (data) {
-		if (data.retCode == const_ret_ok) {
-			$pop = createPop($pop_sms);
-			//$pop.find('#span_carno').text(car_no);
+		//alert(data.items);
+		if (data.retCode == const_ret_ok && data.items != '') {
 			
+			
+			//창이 떠있으면 새로 열리지 않게 한다.
+			if(!isSmsOpen) {
+				$pop = createPop($pop_sms);
+			}
+			isSmsOpen = true;
+			
+			//alert($pop.css("display"));
+			
+			if($pop.css("display") == 'none') {
+				$pop = createPop($pop_sms);
+			}
+			
+			//$pop.find('#span_carno').text(car_no);
 			var items	= data.items;
 			var sHtml	= '';
 			var msg_seq = '';
 			
 			if (items.length > 0) {
 				for (var i = 0; i < items.length; i ++) {
-					sHtml += items[i].msg_contents;
-					sHtml += '<br />' + items[i].reg_dt + '';
+					sHtml += items[i].reg_dt;
+					sHtml += '<br />' + items[i].msg_contents;
 					if(items[i].img_url != null) {
 						sHtml += '<br /><a href="' + items[i].img_url + '" target="_blank"><img src="' + items[i].img_url + '" width="250" height="200" /></a>';
 					}
@@ -1427,9 +1443,10 @@ function showSMS() {
 			$pop.find('#msg_seq').val(msg_seq);
 		}
 	}, onNetCallbackDefaultError);
-	
-	//setTimeout('showSMS()', 5000);
+		
+	setTimeout('showSMS()', 5000);
 }
+
 /* add by ktjoon 2016-01 */
 //차량메시지 닫기
 function closeSMS(pop) {
@@ -1437,28 +1454,8 @@ function closeSMS(pop) {
 	var	msg_seq = pop.find('#msg_seq').val();
 	//alert("msg_seq="+msg_seq);
 	
-	function onAjaxResult(data) {
-		alert(4);
-		/* 
-		if (data.retCode == const_ret_ok) {
-			removePop(pop);
-			alert("메시지가 전송 되었습니다.");
-		} else {
-			alert(data.retMsg);
-		}
-		alert(5); */
-	}
-
-	var url = '/ons/carmsg/updateMessageList.do';
-	var params = {
-		msg_seq : '1,2'
-	};
-	
-	var arr_msg_seq = ["1","2"];
-	alert("params = " + params.msg_seq);
-	//alert("string = " + string);
-	
-	//net_ajax(url, params, onAjaxResult, onNetCallbackDefaultError);
+	var arr_msg_seq = msg_seq.split(',');
+	//alert("arr_msg_seq = " + arr_msg_seq);
 	
 	$.ajax({
 		type : "POST",
@@ -1469,40 +1466,10 @@ function closeSMS(pop) {
 		timeout : 10*60*1000,
 		success : removePop(pop),
         error : function(request,status,error){
-	        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-	       }    
-	}); 
-	
-	/* var params = {
-			msg_seq: msg_seq1
-	};
-	alert("params = " + params.msg_seq);
-	$.ajax({
-		type : "POST",
-		url : "/ons/carmsg/updateMessageList.do",
-		data : params,
-		async : true,
-		dataType : "json",
-		timeout : 10*60*1000,
-		success : removePop(pop),
-        error : function(request,status,error){
-	        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-	       }    
-	}); */
-	
-	
-	
-	 /* $.ajax({   
-	     type: "POST",  
-	     url: "/ons/carmsg/updateMessageList.do",   
-	     data: msg_seq,   
-	     dataType: "json",
-	     success: removePop(pop),
-	     error:function(request,status,error){
-	        alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+	        //alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        	alert('오류가 발생하였습니다.\n잠시후에 이용하여 주시기 바랍니다.');
 	       }
-	     }
-	 ); */
+	}); 
 }
 
 

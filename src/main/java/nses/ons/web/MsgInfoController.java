@@ -169,12 +169,23 @@ public class MsgInfoController {
 		ResultVO resVO 		= null;
 		
 		//String msg_seq	= ComStr.toStr(params.get("msg_seq"));
-		String[] msg_seq	= request.getParameterValues("arr_msg_seq[]");
-		System.out.println("msg_seq ============ "+ Arrays.toString(msg_seq));
+		String[] arr_msg_seq	= request.getParameterValues("arr_msg_seq[]");
+		//System.out.println("arr_msg_seq ============ "+ Arrays.toString(arr_msg_seq));
 		//msgVO.setMsg_seq(msg_seq);
 		
-		//int nRes	= 0;
-		//nRes	= msgInfoService.updateMessageList(msgVO);
+		String msg_seq = "";
+		//msg_seq = Arrays.toString(arr_msg_seq);
+		for(int i=0; i<arr_msg_seq.length; i++) {
+			msg_seq += "'" + arr_msg_seq[i] + "',";
+		}
+		//System.out.println("before msg_seq ============ "+ msg_seq);
+		msg_seq = msg_seq.substring(0, msg_seq.length()-1);
+		//System.out.println("after msg_seq ============ "+ msg_seq);
+		
+		msgVO.setArr_msgseq(msg_seq);
+		
+		int nRes	= 0;
+		nRes	= msgInfoService.updateMessageList(msgVO);
 				
 		ComUtils.responseJson(request, response, resVO);
 	}

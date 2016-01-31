@@ -83,7 +83,7 @@ public class MsgInfoDAO extends NsesAbstractDAO {
      * @throws Exception
      */
     public int updateMessageList(MsgInfoVO vo) throws Exception {
-		return update("msgInfo.updateMessageList", vo);
+   	return update("msgInfo.updateMessageList", vo);
 	}
     
     /**

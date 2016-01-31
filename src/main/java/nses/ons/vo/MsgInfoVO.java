@@ -46,6 +46,7 @@ public class MsgInfoVO {
 	private String	user_id;
 	private String	dsr_seq;
 	
+	// add by ktjoon 2016-01
 	private String	img_url;
 	private String	arr_msgseq;
 	

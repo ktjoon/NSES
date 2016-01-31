@@ -41,17 +41,18 @@
 			SELECT MSG_SEQ, MSG_TYPE, MSG_CONTENTS, REG_DT, IMG_URL
 			FROM TB_MESSAGE_INFO
 			WHERE RECV_DT IS NULL
+			ORDER BY REG_DT DESC
 		]]>
 	</select>
 	
 	<!-- add by ktjoon 2016-01 -->
-	<update id="msgInfo.updateMessageList">
+	<update id="msgInfo.updateMessageList" parameterClass="msgInfoVO">
 		UPDATE 
 			TB_MESSAGE_INFO
 		SET
 			RECV_DT	= sysdate()
 		WHERE
-			MSG_SEQ IN( #user_id# )
+			MSG_SEQ IN( $arr_msgseq$ )
 	</update>
 
 	<insert id="msgInfo.insertData">
