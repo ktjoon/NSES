@@ -14,7 +14,7 @@
 	        	<!-- 차량인식 서버주소 -->
 	        	<entry key="recogServerAddr" value="101.19.100.48"/>
 	        	<!-- 단속저장 경로 -->
-	        	<!-- <entry key="recogSavePath" value="/home/webapp/files"/> -->
+	        	<!-- <entry key="recogSavePath" value="/home/webapp/files/"/> -->
 	        	<entry key="recogSavePath" value="/"/>
 
 				<!-- schedule time -->

@@ -422,20 +422,54 @@ public class RecogImgInfoController {
 	/*
 	 * DB 수정사항
 	 * 단속사진파일명 형식 - "28DE0W001경기90고1696    200812080707331011중앙로(국민은행).jpg"
-	 * 인천시, 자치단체구분, 계도여부, 어린이보호구역여부, 단속구분
+	 * 인천시(2:28), 자치단체구분(1:주소로 구분), 계도여부(1:E), 어린이보호구역여부(1:0), 단속구분(1:U)
 	 * 28,D,E,0,W
 	 * CCTV장비번호(3), 차량번호(16), 년월일시분초(14), 동코드(3), 사진번호(1), 주소(가변)
+	 * modified by ktjoon 2016-01
 	 */
 	public void recogSaveImage(RecogDetailVO vo, int arr) {
 		byte[]	imgData = vo.getImgData_Decode64(1);
-		String	sImgPath =  propertiesService.getString("recogSavePath") +  "28DE0W";
 		
+		String	sImgPath =  propertiesService.getString("recogSavePath") +  "28";
+		
+		// add by ktjoon
+		String juso = vo.getPoi_addr();
+		String gubun = "";
+		
+		if(juso.contains("중구")) {
+			gubun = "A";
+		} else if(juso.contains("동구")) {
+			gubun = "B";
+		} else if(juso.contains("남구")) {
+			gubun = "C";
+		} else if(juso.contains("연수구")) {
+			gubun = "D";
+		} else if(juso.contains("남동구")) {
+			gubun = "E";
+		} else if(juso.contains("부평구")) {
+			gubun = "F";
+		} else if(juso.contains("계양구")) {
+			gubun = "G";
+		} else if(juso.contains("서구")) {
+			gubun = "H";
+		} else if(juso.contains("강화군")) {
+			gubun = "J";
+		} else if(juso.contains("시청")) {
+			gubun = "Z";
+		} else {
+			gubun = "X";
+		} 
+		System.out.println("juso = " + juso + " : " + " gubun = " + gubun);
+		
+		sImgPath += gubun;											// 자치단체구분(1)
+		// add by ktjoon
 		
 		sImgPath += vo.getCctv_seqno();								// CCTV장비번호(3)
 		sImgPath += makeStr(vo.getOwn_car_no(), 16);				// 차량번호(16)
 		sImgPath += makeNum(vo.getRecog_time(), 14);				// 년월일시분초(14)
-		sImgPath += DongCode.getCode(vo.getPoi_addr());	
-		sImgPath += ++arr + "";											// 사진번호(1)
+		//sImgPath += DongCode.getCode(vo.getPoi_addr());				// 동코드(3:999)
+		sImgPath += "999";				// 동코드(3:999)
+		sImgPath += ++arr + "";										// 사진번호(1)
 		sImgPath += vo.getPoi_addr();								// 주소(가변)
 		sImgPath += ".jpg";
 		
