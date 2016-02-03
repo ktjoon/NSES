@@ -438,7 +438,7 @@ public class RecogImgInfoController {
 		
 		if(juso.contains("중구")) {
 			gubun = "A";
-		} else if(juso.contains("동구")) {
+		} else if(juso.matches(".* 동구.*")) {
 			gubun = "B";
 		} else if(juso.contains("남구")) {
 			gubun = "C";
@@ -462,6 +462,7 @@ public class RecogImgInfoController {
 		System.out.println("juso = " + juso + " : " + " gubun = " + gubun);
 		
 		sImgPath += gubun;											// 자치단체구분(1)
+		sImgPath += "E0U";		// 계도여부(1:E), 어린이보호구역여부(1:0), 단속구분(1:U)
 		// add by ktjoon
 		
 		sImgPath += vo.getCctv_seqno();								// CCTV장비번호(3)
